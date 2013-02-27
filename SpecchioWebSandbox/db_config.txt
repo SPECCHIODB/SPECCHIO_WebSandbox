@@ -1,0 +1,13 @@
+# Database connections
+# Attention: be careful to keep this file local if you specify your password!
+# Order of fields: server, port, schema, user_name, password
+# Note: apart from the server name, any of the fields can be left blank
+# db.specchio.ch, 4406, specchio, your_user_name, _your_password
+#specchio-pub.geo.uzh.ch, 3306, specchio21,,
+#db.specchio.ch, 4406, specchio, , 
+specchio-pub.geo.uzh.ch, 3306, cost_es0903, sdb_admin,5p3cch10
+db.specchio.ch, 4406, specchio, DKueken,mEdezA
+db.specchio.ch, 4406, specchio_test, DKueken, mEdezA 
+localhost, 3306, specchio21, sdb_admin, sdb_admin
+db.specchio.ch, 4406, specchio_test, sdb_admin, BDjsgo9R3
+db.specchio.ch, 4406, specchio, sdb_admin, BDjsgo9R3

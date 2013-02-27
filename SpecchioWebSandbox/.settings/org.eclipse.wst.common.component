@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-modules id="moduleCoreId" project-version="1.5.0">
+    <wb-module deploy-name="SpecchioWebSandbox">
+        <wb-resource deploy-path="/" source-path="/WebContent" tag="defaultRootSource"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
+        <dependent-module archiveName="EAV_DB.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/EAV_DB/EAV_DB">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="Specchio.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/Specchio/Specchio">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <property name="context-root" value="SpecchioWebSandbox"/>
+        <property name="java-output-path" value="/SpecchioWebSandbox/build/classes"/>
+    </wb-module>
+</project-modules>
