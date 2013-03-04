@@ -17,6 +17,16 @@ public class TwoComponentView extends HorizontalLayout{
 	
 	public TwoComponentView(Component comp1, Component comp2){
 		
+		float height;
+		
+		if(comp1.getHeight() > comp2.getHeight()){
+			height = comp1.getHeight();
+		} else {
+			height = comp2.getHeight();
+		}
+		
+		setHeight(height, Sizeable.UNITS_PIXELS);
+		
 		setSpacing(true);
 		
 		setMargin(false);
@@ -29,7 +39,7 @@ public class TwoComponentView extends HorizontalLayout{
 		grid.addStyleName("gridexample");
 
 		grid.setWidth("1200px");
-		grid.setHeight("300px");
+		grid.setHeight(height + 50, Sizeable.UNITS_PIXELS);
 
 		grid.addComponent(comp1);
 		grid.setComponentAlignment(comp1, Alignment.TOP_LEFT);
