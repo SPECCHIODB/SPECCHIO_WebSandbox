@@ -28,6 +28,7 @@ import specchio.SpaceFactory;
 import specchio.Spectrum;
 
 import com.example.specchiowebsandbox.data.DBHelper;
+import com.example.specchiowebsandbox.data.EAV_Attribute;
 //import com.example.specchiowebsandbox.data.DataProcessor;
 import com.example.specchiowebsandbox.data.EAV_DataAccess;
 import com.example.specchiowebsandbox.data.SpectrumData;
@@ -35,6 +36,7 @@ import com.example.specchiowebsandbox.data.SpectrumDetailContainer;
 import com.example.specchiowebsandbox.data.SpectrumMetadata;
 import com.example.specchiowebsandbox.ui.DataExplorationPanel;
 import com.example.specchiowebsandbox.ui.DetailList;
+import com.example.specchiowebsandbox.ui.EAVDataPanel;
 import com.example.specchiowebsandbox.ui.GeneralDataPanel;
 import com.example.specchiowebsandbox.ui.GoogleMapsPanel;
 import com.example.specchiowebsandbox.ui.ListView;
@@ -99,6 +101,10 @@ public class SpecchiowebsandboxApplication extends Application implements
 	private TwoComponentView info_view = null;
 
 	private DataExplorationPanel data_expl_panel;
+
+	private EAVDataPanel eav_data;
+
+	
 	
 	
 
@@ -112,6 +118,7 @@ public class SpecchiowebsandboxApplication extends Application implements
 
 	private void buildMainLayout() {
 		setMainWindow(new Window("SpecchioWeb Sandbox Application"));
+		int test = getMainWindow().getBrowserWindowWidth();
 		VerticalLayout layout = new VerticalLayout();
 		layout.setSizeFull();
 
@@ -354,8 +361,21 @@ public class SpecchiowebsandboxApplication extends Application implements
 					e.printStackTrace();
 				}
 				
-//				EAV_DataAccess eav_access = new EAV_DataAccess();
-//				eav_access.getEAVdata(s.spectrum_id);
+//				EAV_DataAccess eav_access = null;
+//				try {
+//					eav_access = new EAV_DataAccess();
+//				} catch (InstantiationException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				} catch (IllegalAccessException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//				ArrayList<EAV_Attribute> entries = eav_access.createEAVDataContainer(s.spectrum_id);
+				
+				
+				
+				eav_data = new EAVDataPanel(s.spectrum_id);
 				
 				if(specPlot == null){
 					specPlot = new SpectrumPlot();
@@ -386,7 +406,7 @@ public class SpecchiowebsandboxApplication extends Application implements
 			
 			horizontalSplit.setSecondComponent(new ListView(spec_dat_panel, map, info_view, time_line_panel, data_expl_panel));
 		} else{
-			horizontalSplit.setSecondComponent(new ListView(spec_dat_panel, map, info_view));
+			horizontalSplit.setSecondComponent(new ListView(spec_dat_panel, map, info_view, eav_data));
 		}
 		
 		
@@ -449,8 +469,15 @@ public class SpecchiowebsandboxApplication extends Application implements
 						specPlot.addPlot(s, true);
 					}
 					
+//					EAV_DataAccess eav_access = new EAV_DataAccess();
+//					ArrayList<EAV_Attribute> entries = eav_access.getEAVdata(s.spectrum_id);
+					
 					metadata = new SpectrumMetadata(s);
 					metadata.fillMetadata();
+					if(selected_items.length == 1){
+						
+						eav_data = new EAVDataPanel(s.spectrum_id);
+					}
 					spec_dat_panel = new SpectrumDataPanel(this, s, specPlot.getChart(), metadata, true);
 					position_panel = new PositionPanel(s, metadata);
 					general_data_panel = new GeneralDataPanel(s, metadata);
@@ -480,8 +507,15 @@ public class SpecchiowebsandboxApplication extends Application implements
 						specPlot.addPlot(s, false);
 					}
 					
+//					EAV_DataAccess eav_access = new EAV_DataAccess();
+//					ArrayList<EAV_Attribute> entries = eav_access.getEAVdata(s.spectrum_id);
+					
 					metadata = new SpectrumMetadata(s);
 					metadata.fillMetadata();
+					if(selected_items.length == 1){
+						
+						eav_data = new EAVDataPanel(s.spectrum_id);
+					}
 					spec_dat_panel = new SpectrumDataPanel(this, s, specPlot.getChart(), metadata, false);
 					position_panel = new PositionPanel(s, metadata);
 					general_data_panel = new GeneralDataPanel(s, metadata);
@@ -504,7 +538,7 @@ public class SpecchiowebsandboxApplication extends Application implements
 			
 			horizontalSplit.setSecondComponent(new ListView(spec_dat_panel, map, info_view, time_line_panel, data_expl_panel));
 		} else{
-			horizontalSplit.setSecondComponent(new ListView(spec_dat_panel, map, info_view));
+			horizontalSplit.setSecondComponent(new ListView(spec_dat_panel, map, info_view, eav_data));
 		}
 		
 		
@@ -517,6 +551,7 @@ public class SpecchiowebsandboxApplication extends Application implements
 	public SpecchiowebsandboxApplication getApp(){
 		return this;
 	}
+	
 	
 
 		
