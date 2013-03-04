@@ -154,6 +154,8 @@ public class DataExplorationPanel extends VerticalLayout implements
 					slider1_val = (Double)slider1.getValue();
 
 
+			} else {
+				getData(event.getProperty().getValue().toString());
 			}
 			}
 			
@@ -222,6 +224,8 @@ public class DataExplorationPanel extends VerticalLayout implements
 					slider2_val = (Double)slider2.getValue();
 
 
+			} else {
+				getData(event.getProperty().getValue().toString());
 			}
 			}
 			
@@ -329,6 +333,27 @@ public class DataExplorationPanel extends VerticalLayout implements
 			wvl = instr_space.get_wvls();
 			
 			
+		} else {
+			EAVDBServices eav_db_service = EAVDBServices.getInstance();
+			
+			eav_db_service.set_primary_x_eav_tablename("spectrum_x_eav","spectrum_id", "spectrum");
+			
+			Attributes attributes = Attributes.getInstance();
+			ArrayList<attribute> attr = attributes.get_attributes("system");
+			
+			ArrayList<Object> elements = new ArrayList<Object>();
+			
+			int index = attr.indexOf(parameter);
+			
+			for(int i = 0; i < selected_items.length; i++){
+//				elements.add(eav_db_service.get_distinct_list_of_metaparameter_vals(selected_items[i]., attribute, field));
+				
+//				SpectrumData itemId = (SpectrumData) selected_items[i];
+//				
+//				eav_db_service.get_distinct_list_of_metaparameter_vals(itemId.getSpectrum_id(), parameter, );
+				
+				
+			}
 		}
 	}
 	
