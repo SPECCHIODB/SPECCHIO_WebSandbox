@@ -27,7 +27,7 @@ public class SpectrumDataPanel extends VerticalLayout{
 	public SpectrumDataPanel(SpecchiowebsandboxApplication app, Spectrum spec, InvientCharts chart, SpectrumMetadata meta, boolean full_res){
 		setSpacing(true);
 		
-		
+		setHeight(620, Sizeable.UNITS_PIXELS);
 		// Create a grid layout
         final GridLayout grid = new GridLayout(1, 9);
         grid.setSpacing(false);

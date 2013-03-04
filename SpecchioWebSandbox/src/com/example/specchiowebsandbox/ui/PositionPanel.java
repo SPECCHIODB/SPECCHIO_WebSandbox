@@ -18,6 +18,8 @@ public class PositionPanel extends VerticalLayout{
 		
 		setSpacing(true);
 		
+		setHeight(320, Sizeable.UNITS_PIXELS);
+		
 		
 		// Create a grid layout
         final GridLayout grid = new GridLayout(1, 4);

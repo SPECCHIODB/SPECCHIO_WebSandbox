@@ -11,8 +11,10 @@ public class ListView extends VerticalLayout {
 	
 	private final GridLayout grid;
 
-	public ListView(SpectrumDataPanel spectrumDetail, TwoComponentView position, TwoComponentView info_view) {
+	public ListView(SpectrumDataPanel spectrumDetail, TwoComponentView position, TwoComponentView info_view, EAVDataPanel eav_data) {
 		// Create a grid layout
+		
+		float height = spectrumDetail.getHeight() + position.getHeight() + info_view.getHeight() + eav_data.getHeight();
 		
 		setSpacing(true);
 		
@@ -26,7 +28,7 @@ public class ListView extends VerticalLayout {
 		grid.addStyleName("gridexample");
 
 		grid.setWidth("1200px");
-		grid.setHeight("1200px");
+		grid.setHeight(height + 50, Sizeable.UNITS_PIXELS);
 
 		grid.addComponent(spectrumDetail);
 		grid.setComponentAlignment(spectrumDetail, Alignment.TOP_LEFT);
@@ -37,6 +39,9 @@ public class ListView extends VerticalLayout {
 		
 		grid.addComponent(info_view);
 		grid.setComponentAlignment(info_view, Alignment.TOP_LEFT);
+		
+		grid.addComponent(eav_data);
+		grid.setComponentAlignment(eav_data, Alignment.TOP_LEFT);
 
 		
 

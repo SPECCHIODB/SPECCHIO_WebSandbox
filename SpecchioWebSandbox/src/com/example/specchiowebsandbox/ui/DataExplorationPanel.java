@@ -28,12 +28,16 @@ import com.vaadin.ui.Slider;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import eav_db.Attributes;
+import eav_db.EAVDBServices;
+import eav_db.Attributes.attribute;
+
 public class DataExplorationPanel extends VerticalLayout implements
 		Property.ValueChangeListener {
 
 	private Panel panel;
 
-	private static String[] parameters = new String[] {"Reflectance" };
+	private static ArrayList<String> parameters;
 
 	private SpecchiowebsandboxApplication application;
 
@@ -65,6 +69,8 @@ public class DataExplorationPanel extends VerticalLayout implements
 		selected_items = selection;
 		
 		setSpacing(false);
+		
+		setHeight(700, Sizeable.UNITS_PIXELS);
 
 		// Create a grid layout
 		grid = new GridLayout(2, 5);
@@ -85,11 +91,13 @@ public class DataExplorationPanel extends VerticalLayout implements
 		
 		
 		// Create DropDown Menu to select parameter to be visualized
+		
+		getParametersList();
 
 		final NativeSelect dropdown1 = new NativeSelect(
 				"Please select first parameter (X-Axis)");
-		for (int i = 0; i < parameters.length; i++) {
-			dropdown1.addItem(parameters[i]);
+		for (int i = 0; i < parameters.size(); i++) {
+			dropdown1.addItem(parameters.get(i));
 		}
 
 		dropdown1.setNullSelectionAllowed(true);
@@ -154,8 +162,8 @@ public class DataExplorationPanel extends VerticalLayout implements
 		grid.addComponent(dropdown1);
 		
 		final NativeSelect dropdown2 = new NativeSelect("Please select second parameter (Y-Axis)");
-		for(int i = 0; i < parameters.length; i++){
-			dropdown2.addItem(parameters[i]);
+		for(int i = 0; i < parameters.size(); i++){
+			dropdown2.addItem(parameters.get(i));
 		}
 		
 		dropdown2.setNullSelectionAllowed(true);
@@ -322,6 +330,25 @@ public class DataExplorationPanel extends VerticalLayout implements
 			
 			
 		}
+	}
+	
+	public void getParametersList(){
+		EAVDBServices eav_db_service = EAVDBServices.getInstance();
+		
+		eav_db_service.set_primary_x_eav_tablename("spectrum_x_eav","spectrum_id", "spectrum");
+		
+		Attributes attributes = Attributes.getInstance();
+		ArrayList<attribute> attr = attributes.get_attributes("system");
+		
+		parameters = new ArrayList<String>();
+		
+		parameters.add("Reflectance");
+		
+		for(int i = 1; i< attr.size(); i++){
+			parameters.add(attr.get(i-1).getName());
+		}
+		
+		
 	}
 
 	public void valueChange(ValueChangeEvent event) {

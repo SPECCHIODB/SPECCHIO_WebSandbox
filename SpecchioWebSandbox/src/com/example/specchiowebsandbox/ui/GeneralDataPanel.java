@@ -18,6 +18,8 @@ public class GeneralDataPanel extends VerticalLayout{
 		
 		setSpacing(true);
 		
+		setHeight(220, Sizeable.UNITS_PIXELS);
+		
 		
 		// Create a grid layout
         final GridLayout grid = new GridLayout(2, 3);

@@ -42,6 +42,8 @@ public class TimeLinePanel extends VerticalLayout implements Property.ValueChang
 		
 		setSpacing(true);
 		
+		setHeight(700, Sizeable.UNITS_PIXELS);
+		
 		wavelength = wvl;
 		
 		df = new DecimalFormat("#0.00");
