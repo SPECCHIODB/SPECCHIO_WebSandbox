@@ -1,40 +1,47 @@
 package com.example.specchiowebsandbox.data;
 
-public class EAV_Attribute {
+import java.io.Serializable;
+
+@SuppressWarnings("serial")
+public class EAV_Attribute implements Serializable{
 	
-	private String attr_name;
-	private String attr_field;
-	private Object attr_value;
+	private String attrName = "";
+	private String attrField = "";
+	private Object attrValue = null;
+	
+	public EAV_Attribute(){
+		
+	}
 	
 	public EAV_Attribute(String name, String field, Object val){
-		attr_name = name;
-		attr_field = field;
-		attr_value = val;
+		attrName = name;
+		attrField = field;
+		attrValue = val;
 	}
 	
 	
 	public String getAttrName(){
-		return attr_name;
+		return attrName;
 	}
 	
 	public void setAttrName(String name){
-		attr_name = name;
+		this.attrName = name;
 	}
 	
 	public String getAttrField(){
-		return attr_field;
+		return attrField;
 	}
 	
 	public void setAttrField(String field){
-		attr_field = field;
+		this.attrField = field;
 	}
 	
 	public Object getAttrValue(){
-		return attr_value;
+		return attrValue;
 	}
 	
 	public void setAttrValue(Object val){
-		attr_value = val;
+		this.attrValue = val;
 	}
 	
 
