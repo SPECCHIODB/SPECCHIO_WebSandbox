@@ -2,9 +2,11 @@ package com.example.specchiowebsandbox;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.ListIterator;
@@ -21,6 +23,7 @@ import org.apache.commons.io.FileUtils;
 import spaces.SensorAndInstrumentSpace;
 import spaces.Space;
 import specchio.MetaDatatype;
+import specchio.SPECCHIODatabaseConnection;
 import specchio.SpaceFactory;
 import specchio.Spectrum;
 
@@ -54,6 +57,7 @@ import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.terminal.gwt.server.HttpServletRequestListener;
 import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 
 import eav_db.DatabaseConnection;
 
@@ -111,7 +115,7 @@ public class SpecchiowebsandboxApplication extends Application implements
 		VerticalLayout layout = new VerticalLayout();
 		layout.setSizeFull();
 
-		// layout.addComponent(createToolbar());
+		layout.addComponent(createHeaderBar());
 		layout.addComponent(horizontalSplit);
 
 		/* Allocate all available extra space to the hoizontal split panel */
@@ -127,6 +131,38 @@ public class SpecchiowebsandboxApplication extends Application implements
 
 		getMainWindow().setContent(layout);
 
+	}
+	
+	private Component createHeaderBar(){
+		
+		HorizontalLayout h = new HorizontalLayout();
+		
+		Button logout = new Button("Logout");
+		
+		logout.addListener(new ClickListener(){
+			 public void buttonClick(ClickEvent event){
+				 DatabaseConnection db = SPECCHIODatabaseConnection.getInstance();
+//				 Connection db_conn = db.get_new_thread_conn_to_current_server(Thread.currentThread());
+				 
+				 db.close_thread_conn_to_current_server(Thread.currentThread());
+				 
+				 
+//				 try {
+//					db_conn.close();
+//				} catch (SQLException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+				 getApp().close();
+				 
+//				 showLogoutWindow();
+			 }
+		});
+		
+		h.addComponent(logout);
+		h.setComponentAlignment(logout, Alignment.TOP_RIGHT);
+		
+		return h;
 	}
 
 //	public void itemClick(ItemClickEvent event) {
@@ -262,6 +298,11 @@ public class SpecchiowebsandboxApplication extends Application implements
 	public void onRequestEnd(HttpServletRequest request,
 			HttpServletResponse response) {
 		// TODO Auto-generated method stub
+		
+		String serverInfo = request.getSession().getServletContext().getServerInfo();
+		String test = request.getRequestURI();
+		
+		
 
 	}
 
@@ -350,6 +391,8 @@ public class SpecchiowebsandboxApplication extends Application implements
 		
 		
 		specPlot = null;
+		
+		
 
 
 	}
@@ -466,6 +509,8 @@ public class SpecchiowebsandboxApplication extends Application implements
 		
 		
 		specPlot = null;
+		
+		
 		
 	}
 	
