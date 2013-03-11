@@ -32,6 +32,7 @@ public class SpectrumMetadata {
 	
 	public SpectrumMetadata(Spectrum spec){
 		spectrum = spec;
+
 	}
 	
 	public void fillMetadata(){
