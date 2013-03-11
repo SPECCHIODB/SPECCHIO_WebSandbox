@@ -3,6 +3,7 @@ package com.example.specchiowebsandbox.ui;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.ListIterator;
 
 import spaces.SensorAndInstrumentSpace;
@@ -21,6 +22,7 @@ import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.NativeSelect;
 import com.vaadin.ui.Panel;
@@ -31,6 +33,7 @@ import com.vaadin.ui.VerticalLayout;
 import eav_db.Attributes;
 import eav_db.EAVDBServices;
 import eav_db.Attributes.attribute;
+
 
 public class DataExplorationPanel extends VerticalLayout implements
 		Property.ValueChangeListener {
@@ -58,6 +61,9 @@ public class DataExplorationPanel extends VerticalLayout implements
 	private Double slider2_val;
 	
 	DecimalFormat df;
+	
+	private double[] param1_values;
+	private double[] param2_values;
 	
 
 	public DataExplorationPanel(SpecchiowebsandboxApplication app, Spectrum spec, Object[] selection) {
@@ -106,21 +112,25 @@ public class DataExplorationPanel extends VerticalLayout implements
 		dropdown1.addListener(new ValueChangeListener(){
 			public void valueChange(ValueChangeEvent event) {
 				// TODO Auto-generated method stub
+				final Slider slider1 = new Slider("Select the band number:");
+				slider1.setVisible(false);
+				final TextField selected_wvl = new TextField("Selected Wavelength:");
 				
 				if (event.getProperty().getValue().equals("Reflectance")){
 					
-					getData("Reflectance");
+					getData("Reflectance", null);
 				
 					//Create Textfield to display selected Wavelength
 					
-					final TextField selected_wvl = new TextField("Selected Wavelength:");
+					
 					selected_wvl.setValue(wvl[0]);
 					selected_wvl.setWidth("100%");
 					selected_wvl.setReadOnly(true);
 					
 					
-					final Slider slider1 = new Slider("Select the band number:");
-			        slider1.setWidth("75%");
+					
+			        slider1.setVisible(true);
+					slider1.setWidth("75%");
 			        slider1.setMin(1);
 			        slider1.setMax(wvl.length);
 			        slider1.setImmediate(true);
@@ -155,7 +165,20 @@ public class DataExplorationPanel extends VerticalLayout implements
 
 
 			} else {
-				getData(event.getProperty().getValue().toString());
+//				Iterator<Component> grid_it = grid.getComponentIterator();
+//				while(grid_it.hasNext()){
+//					Component comp = grid_it.next();
+//					String caption = comp.getCaption();
+//					if(caption.equals("Select the band number:")){
+//						grid.removeComponent(comp);
+//					}
+//				}
+				
+				if(slider1.isVisible()){
+					slider1.setVisible(false);
+					selected_wvl.setVisible(false);
+				}
+				getData(event.getProperty().getValue().toString(), "param1");
 			}
 			}
 			
@@ -174,20 +197,23 @@ public class DataExplorationPanel extends VerticalLayout implements
 		dropdown2.addListener(new ValueChangeListener(){
 			public void valueChange(ValueChangeEvent event) {
 				// TODO Auto-generated method stub
+				final TextField selected_wvl2 = new TextField("Selected Wavelength:");
+				final Slider slider2 = new Slider("Select the band number:");
+				slider2.setVisible(false);
 				
 				if (event.getProperty().getValue().equals("Reflectance")){
 					
-					getData("Reflectance");
+					getData("Reflectance", null);
 				
 					//Create Textfield to display selected Wavelength
 					
-					final TextField selected_wvl = new TextField("Selected Wavelength:");
-					selected_wvl.setValue(wvl[0]);
-					selected_wvl.setWidth("100%");
-					selected_wvl.setReadOnly(true);
+					
+					selected_wvl2.setValue(wvl[0]);
+					selected_wvl2.setWidth("100%");
+					selected_wvl2.setReadOnly(true);
 					
 					
-					final Slider slider2 = new Slider("Select the band number:");
+					slider2.setVisible(true);
 			        slider2.setWidth("75%");
 			        slider2.setMin(1);
 			        slider2.setMax(wvl.length);
@@ -199,9 +225,9 @@ public class DataExplorationPanel extends VerticalLayout implements
 			            	int i = index.intValue() - 1;
 			            	Double value = wvl[i];
 			            	
-			            	selected_wvl.setReadOnly(false);
-			                selected_wvl.setValue(df.format(value));
-			                selected_wvl.setReadOnly(true);
+			            	selected_wvl2.setReadOnly(false);
+			                selected_wvl2.setValue(df.format(value));
+			                selected_wvl2.setReadOnly(true);
 			                slider2_val = (Double) slider2.getValue();
 			                
 			            }
@@ -216,16 +242,29 @@ public class DataExplorationPanel extends VerticalLayout implements
 			        if(grid.getRows() < 3){
 			        	grid.insertRow(2);
 			        }
-			        grid.addComponent(selected_wvl, 1, 2);
-					grid.setComponentAlignment(selected_wvl, Alignment.TOP_LEFT);
+			        grid.addComponent(selected_wvl2, 1, 2);
+					grid.setComponentAlignment(selected_wvl2, Alignment.TOP_LEFT);
 					
 					grid.setHeight("200px");
 					
 					slider2_val = (Double)slider2.getValue();
-
+				
 
 			} else {
-				getData(event.getProperty().getValue().toString());
+//				Iterator<Component> grid_it = grid.getComponentIterator();
+//				while(grid_it.hasNext()){
+//					Component comp = grid_it.next();
+//					String caption = comp.getCaption();
+//					if(caption.equals("Select the band number:")){
+//						grid.removeComponent(comp);
+//					}
+//				}
+				
+				if(slider2.isVisible()){
+					slider2.setVisible(false);
+					selected_wvl2.setVisible(false);
+				}
+				getData(event.getProperty().getValue().toString(), "param2");
 			}
 			}
 			
@@ -237,6 +276,8 @@ public class DataExplorationPanel extends VerticalLayout implements
         b.setDescription("Click to visualize selected Parameters");
         b.addListener(new Button.ClickListener() {
 			
+			
+
 			public void buttonClick(ClickEvent event) {
 				// TODO Auto-generated method stub
 				if (chart != null){
@@ -249,7 +290,15 @@ public class DataExplorationPanel extends VerticalLayout implements
 				chart_grid.setSizeFull();
 
 				ScatterPlot scatter = new ScatterPlot();
-				scatter.generatePlot(dropdown1.getValue().toString(), dropdown2.getValue().toString(), slider1_val.intValue(), slider2_val.intValue(), wvl, vectors);
+				if(dropdown1.getValue().toString().equals("Reflectance") && dropdown2.getValue().toString().equals("Reflectance")){
+					scatter.generatePlot(dropdown1.getValue().toString(), dropdown2.getValue().toString(), slider1_val.intValue(), slider2_val.intValue(), wvl, vectors);
+				} else if(dropdown1.getValue().toString().equals("Reflectance") && !dropdown2.getValue().toString().equals("Reflectance")){
+					scatter.generatePlot("Reflectance", dropdown2.getValue().toString(), slider1_val.intValue(), wvl, vectors, param2_values);
+				} else if(!dropdown1.getValue().toString().equals("Reflectance") && dropdown2.getValue().toString().equals("Reflectance")){
+					scatter.generatePlot(dropdown1.getValue().toString(), "Reflectance", slider2_val.intValue(), wvl, vectors, param1_values);
+				} else{
+					scatter.generatePlot(dropdown1.getValue().toString(), dropdown2.getValue().toString(), param1_values, param2_values);
+				}
 				chart = scatter.getChart();
 //				grid.setHeight("650px");
 //				grid.addComponent(chart, 0, 4);
@@ -267,11 +316,13 @@ public class DataExplorationPanel extends VerticalLayout implements
 		
 		
 		panel.addComponent(grid);
+		
+	
 
 		addComponent(panel);
 	}
 	
-	public void getData(String parameter){
+	public void getData(String parameter, String param1orparam2){
 		
 		if (parameter.equalsIgnoreCase("Reflectance")){
 			
@@ -343,9 +394,26 @@ public class DataExplorationPanel extends VerticalLayout implements
 			
 			ArrayList<Object> elements = new ArrayList<Object>();
 			
-			int index = attr.indexOf(parameter);
+//			int index = attr.indexOf(parameter);
+			
+			
 			
 			for(int i = 0; i < selected_items.length; i++){
+				int index = -1;
+				for(int j = 0; j < attr.size(); j++){
+					if (attr.get(j).getName().equalsIgnoreCase(parameter)){
+						index = j;
+					}
+				}
+				
+				SpectrumData id = (SpectrumData)selected_items[i];
+				ArrayList<Integer> itemId = new ArrayList<Integer>();
+				itemId.add(id.getSpectrum_id());
+				
+				
+				elements.add(eav_db_service.get_distinct_list_of_metaparameter_vals(itemId, parameter, attr.get(index).get_default_storage_field()));
+				
+				
 //				elements.add(eav_db_service.get_distinct_list_of_metaparameter_vals(selected_items[i]., attribute, field));
 				
 //				SpectrumData itemId = (SpectrumData) selected_items[i];
@@ -353,6 +421,26 @@ public class DataExplorationPanel extends VerticalLayout implements
 //				eav_db_service.get_distinct_list_of_metaparameter_vals(itemId.getSpectrum_id(), parameter, );
 				
 				
+			}
+			
+			if (param1orparam2.equals("param1")) {
+				param1_values = new double[elements.size()];
+				
+			
+
+				for (int i = 0; i < elements.size(); i++) {
+					ArrayList<Object> item = (ArrayList<Object>) elements.get(i);
+					Double double_val = (Double) item.get(0);
+					param1_values[i] = double_val.doubleValue();
+				}
+			} else if (param1orparam2.equals("param2")){
+				param2_values = new double[elements.size()];
+				
+				for (int i = 0; i < elements.size(); i++){
+					ArrayList<Object> item = (ArrayList<Object>) elements.get(i);
+					Double double_val = (Double) item.get(0);
+					param2_values[i] = double_val.doubleValue();
+				}
 			}
 		}
 	}
