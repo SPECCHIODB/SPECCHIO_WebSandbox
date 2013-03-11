@@ -135,9 +135,11 @@ public class DataExplorationPanel extends VerticalLayout implements
 					//Create Textfield to display selected Wavelength
 					
 					
+					selected_wvl.setReadOnly(false);
 					selected_wvl.setValue(wvl[0]);
 					selected_wvl.setWidth("100%");
 					selected_wvl.setReadOnly(true);
+					selected_wvl.setVisible(true);
 					
 					
 					
@@ -195,7 +197,7 @@ public class DataExplorationPanel extends VerticalLayout implements
 					grid.addComponent(dropdown1);
 					grid .addComponent(dropdown2);
 					
-					if(dropdown2.getValue().equals("Reflectance")){
+					if(dropdown2.getValue() != null && dropdown2.getValue().equals("Reflectance")){
 						grid.addComponent(slider2,1,1);
 						grid.addComponent(selected_wvl2,1,2);
 					}
@@ -234,9 +236,11 @@ public class DataExplorationPanel extends VerticalLayout implements
 					//Create Textfield to display selected Wavelength
 					
 					
+					selected_wvl2.setReadOnly(false);
 					selected_wvl2.setValue(wvl[0]);
 					selected_wvl2.setWidth("100%");
 					selected_wvl2.setReadOnly(true);
+					selected_wvl2.setVisible(true);
 					
 					
 					slider2.setVisible(true);
@@ -295,7 +299,7 @@ public class DataExplorationPanel extends VerticalLayout implements
 					grid.addComponent(dropdown1);
 					grid.addComponent(dropdown2);
 					
-					if(dropdown1.getValue().equals("Reflectance")){
+					if(dropdown1.getValue() != null && dropdown1.getValue().equals("Reflectance")){
 						grid.addComponent(slider1,0,1);
 						grid.addComponent(selected_wvl,0,2);
 					}
