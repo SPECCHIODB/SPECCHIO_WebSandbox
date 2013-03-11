@@ -151,7 +151,7 @@ public class SpecchiowebsandboxApplication extends Application implements
 				 DatabaseConnection db = SPECCHIODatabaseConnection.getInstance();
 //				 Connection db_conn = db.get_new_thread_conn_to_current_server(Thread.currentThread());
 				 
-				 db.close_thread_conn_to_current_server(Thread.currentThread());
+//				 db.close_thread_conn_to_current_server(Thread.currentThread());
 				 
 				 
 //				 try {
