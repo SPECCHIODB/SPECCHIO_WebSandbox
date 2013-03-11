@@ -354,6 +354,8 @@ public class SpecchiowebsandboxApplication extends Application implements
 					s = new Spectrum(itemId.getSpectrum_id());
 					
 					
+					
+					
 //					System.setProperty("user.dir","/var/lib/tomcat6");
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
