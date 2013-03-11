@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.ListIterator;
 
 import specchio.MetaDatatype;
+import specchio.SPECCHIOMetadata;
 import specchio.Spectrum;
 
 public class SpectrumMetadata {
@@ -36,6 +37,9 @@ public class SpectrumMetadata {
 	}
 	
 	public void fillMetadata(){
+		
+		String test = spectrum.getMetadataAsString("Longitude");
+		
 		
 		ArrayList<MetaDatatype> md = spectrum.md_attribute_list;
 		
