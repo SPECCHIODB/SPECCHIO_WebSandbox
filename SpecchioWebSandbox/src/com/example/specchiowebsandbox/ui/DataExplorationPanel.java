@@ -65,6 +65,16 @@ public class DataExplorationPanel extends VerticalLayout implements
 	private double[] param1_values;
 	private double[] param2_values;
 	
+	final NativeSelect dropdown1 = new NativeSelect(
+			"Please select first parameter (X-Axis)");
+	final NativeSelect dropdown2 = new NativeSelect("Please select second parameter (Y-Axis)");
+	Button gen_plot_button = new Button("Generate Scatter Plot");
+	
+	final Slider slider1 = new Slider("Select the band number:");
+	final TextField selected_wvl = new TextField("Selected Wavelength:");
+	
+	final TextField selected_wvl2 = new TextField("Selected Wavelength:");
+	final Slider slider2 = new Slider("Select the band number:");
 
 	public DataExplorationPanel(SpecchiowebsandboxApplication app, Spectrum spec, Object[] selection) {
 		
@@ -98,10 +108,9 @@ public class DataExplorationPanel extends VerticalLayout implements
 		
 		// Create DropDown Menu to select parameter to be visualized
 		
-		getParametersList();
+		getParametersList(spec);
 
-		final NativeSelect dropdown1 = new NativeSelect(
-				"Please select first parameter (X-Axis)");
+		
 		for (int i = 0; i < parameters.size(); i++) {
 			dropdown1.addItem(parameters.get(i));
 		}
@@ -112,11 +121,14 @@ public class DataExplorationPanel extends VerticalLayout implements
 		dropdown1.addListener(new ValueChangeListener(){
 			public void valueChange(ValueChangeEvent event) {
 				// TODO Auto-generated method stub
-				final Slider slider1 = new Slider("Select the band number:");
-				slider1.setVisible(false);
-				final TextField selected_wvl = new TextField("Selected Wavelength:");
+				
+//				slider1.setVisible(false);
+				
 				
 				if (event.getProperty().getValue().equals("Reflectance")){
+					
+					
+					
 					
 					getData("Reflectance", null);
 				
@@ -177,6 +189,19 @@ public class DataExplorationPanel extends VerticalLayout implements
 				if(slider1.isVisible()){
 					slider1.setVisible(false);
 					selected_wvl.setVisible(false);
+					
+					grid.removeAllComponents();
+					
+					grid.addComponent(dropdown1);
+					grid .addComponent(dropdown2);
+					
+					if(dropdown2.getValue().equals("Reflectance")){
+						grid.addComponent(slider2,1,1);
+						grid.addComponent(selected_wvl2,1,2);
+					}
+					
+					grid.addComponent(gen_plot_button,0,3);
+					
 				}
 				getData(event.getProperty().getValue().toString(), "param1");
 			}
@@ -186,7 +211,7 @@ public class DataExplorationPanel extends VerticalLayout implements
 		
 		grid.addComponent(dropdown1);
 		
-		final NativeSelect dropdown2 = new NativeSelect("Please select second parameter (Y-Axis)");
+		
 		for(int i = 0; i < parameters.size(); i++){
 			dropdown2.addItem(parameters.get(i));
 		}
@@ -196,10 +221,11 @@ public class DataExplorationPanel extends VerticalLayout implements
 		dropdown2.setImmediate(true);
 		dropdown2.addListener(new ValueChangeListener(){
 			public void valueChange(ValueChangeEvent event) {
-				// TODO Auto-generated method stub
-				final TextField selected_wvl2 = new TextField("Selected Wavelength:");
-				final Slider slider2 = new Slider("Select the band number:");
-				slider2.setVisible(false);
+				
+				
+				
+				
+				
 				
 				if (event.getProperty().getValue().equals("Reflectance")){
 					
@@ -263,6 +289,19 @@ public class DataExplorationPanel extends VerticalLayout implements
 				if(slider2.isVisible()){
 					slider2.setVisible(false);
 					selected_wvl2.setVisible(false);
+					
+					grid.removeAllComponents();
+					
+					grid.addComponent(dropdown1);
+					grid.addComponent(dropdown2);
+					
+					if(dropdown1.getValue().equals("Reflectance")){
+						grid.addComponent(slider1,0,1);
+						grid.addComponent(selected_wvl,0,2);
+					}
+					
+					grid.addComponent(gen_plot_button,0,3);
+					
 				}
 				getData(event.getProperty().getValue().toString(), "param2");
 			}
@@ -272,9 +311,9 @@ public class DataExplorationPanel extends VerticalLayout implements
 		
 		grid.addComponent(dropdown2);
 		
-		Button b = new Button("Generate Scatter Plot");
-        b.setDescription("Click to visualize selected Parameters");
-        b.addListener(new Button.ClickListener() {
+		
+		gen_plot_button.setDescription("Click to visualize selected Parameters");
+		gen_plot_button.addListener(new Button.ClickListener() {
 			
 			
 
@@ -311,7 +350,7 @@ public class DataExplorationPanel extends VerticalLayout implements
 			}
 		});
 //        grid.insertRow(grid.getRows()-1);
-        grid.addComponent(b, 0, 3);
+        grid.addComponent(gen_plot_button, 0, 3);
 
 		
 		
@@ -445,8 +484,11 @@ public class DataExplorationPanel extends VerticalLayout implements
 		}
 	}
 	
-	public void getParametersList(){
+	public void getParametersList(Spectrum spec){
 		EAVDBServices eav_db_service = EAVDBServices.getInstance();
+		
+		ArrayList<Integer> spec_ids = new ArrayList<Integer>();
+		spec_ids.add(spec.spectrum_id);
 		
 		eav_db_service.set_primary_x_eav_tablename("spectrum_x_eav","spectrum_id", "spectrum");
 		
@@ -458,7 +500,10 @@ public class DataExplorationPanel extends VerticalLayout implements
 		parameters.add("Reflectance");
 		
 		for(int i = 1; i< attr.size(); i++){
-			parameters.add(attr.get(i-1).getName());
+			
+			if( attr.get(i-1).get_default_storage_field() != null){
+				parameters.add(attr.get(i-1).getName());
+			}
 		}
 		
 		
