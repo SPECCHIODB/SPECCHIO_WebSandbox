@@ -103,7 +103,7 @@ public class ScatterPlot {
         if (parameter1.equals("Reflectance")){
         	xAxis.setTitle(new AxisTitle(parameter1 + " @ " + df.format(wvl[band_no_param1 - 1]) + "nm"));
         } else {
-        	xAxis.setTitle(new AxisTitle("Parameter1"));
+        	xAxis.setTitle(new AxisTitle(parameter1));
         }
         xAxis.setStartOnTick(true);
         xAxis.setEndOnTick(true);
@@ -116,7 +116,7 @@ public class ScatterPlot {
         if (parameter2.equals("Reflectance")){
         	yAxis.setTitle(new AxisTitle(parameter2 + " @ " + df.format(wvl[band_no_param2 - 1]) + "nm"));
         } else {
-        	yAxis.setTitle(new AxisTitle("Parameter2"));
+        	yAxis.setTitle(new AxisTitle(parameter2));
         }
         LinkedHashSet<YAxis> yAxesSet = new LinkedHashSet<InvientChartsConfig.YAxis>();
         yAxesSet.add(yAxis);
@@ -265,7 +265,7 @@ public class ScatterPlot {
         if (parameter1.equals("Reflectance")){
         	xAxis.setTitle(new AxisTitle(parameter1 + " @ " + df.format(wvl[band_no - 1]) + "nm"));
         } else {
-        	xAxis.setTitle(new AxisTitle("Parameter1"));
+        	xAxis.setTitle(new AxisTitle(parameter1));
         }
         xAxis.setStartOnTick(true);
         xAxis.setEndOnTick(true);
@@ -278,7 +278,7 @@ public class ScatterPlot {
         if (parameter2.equals("Reflectance")){
         	yAxis.setTitle(new AxisTitle(parameter2 + " @ " + df.format(wvl[band_no - 1]) + "nm"));
         } else {
-        	yAxis.setTitle(new AxisTitle("Parameter2"));
+        	yAxis.setTitle(new AxisTitle(parameter2));
         }
         LinkedHashSet<YAxis> yAxesSet = new LinkedHashSet<InvientChartsConfig.YAxis>();
         yAxesSet.add(yAxis);
@@ -396,7 +396,7 @@ public class ScatterPlot {
 
         NumberXAxis xAxis = new NumberXAxis();
         
-        xAxis.setTitle(new AxisTitle("Parameter1"));
+        xAxis.setTitle(new AxisTitle(parameter1));
         
         xAxis.setStartOnTick(true);
         xAxis.setEndOnTick(true);
@@ -407,7 +407,7 @@ public class ScatterPlot {
 
         NumberYAxis yAxis = new NumberYAxis();
         
-        yAxis.setTitle(new AxisTitle("Parameter2"));
+        yAxis.setTitle(new AxisTitle(parameter2));
         
         LinkedHashSet<YAxis> yAxesSet = new LinkedHashSet<InvientChartsConfig.YAxis>();
         yAxesSet.add(yAxis);
