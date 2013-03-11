@@ -208,4 +208,271 @@ public class ScatterPlot {
 		return chart;
 	}
 
+	public void generatePlot(String parameter1, String parameter2, int band_no,
+			double[] wvl, double[][] vectors, double[] param2_values) {
+		
+		String x_unit;
+		String y_unit;
+		
+		String param1_legend_entry;
+		String param2_legend_entry;
+		
+		boolean refl_on_x = true; //needed to define where the reflectance vector is plotted, x or y axis...
+		
+		df = new DecimalFormat("#0.00");
+		
+		if (parameter1.equals("Reflectance")){
+			x_unit = "nm";
+			param1_legend_entry = "R @ " + df.format(wvl[band_no-1]);
+			refl_on_x = true;
+		} else {
+			x_unit = "";
+			param1_legend_entry = parameter1;
+			refl_on_x = false;
+		}
+		
+		if (parameter2.equals("Reflectance")){
+			y_unit = "nm";
+			param2_legend_entry = "R @ " + df.format(wvl[band_no-1]);
+		} else {
+			y_unit = "";
+			param2_legend_entry = parameter2;
+		}
+		
+		InvientChartsConfig chartConfig = new InvientChartsConfig();
+        chartConfig.getGeneralChartConfig().setType(SeriesType.SCATTER);
+        chartConfig.getGeneralChartConfig().setZoomType(ZoomType.XY);
+        chartConfig.getGeneralChartConfig().setMargin(new Margin());
+		chartConfig.getGeneralChartConfig().getMargin().setRight(250);
+		chartConfig.getGeneralChartConfig().getMargin().setBottom(50);
+
+        
+        chartConfig.getTitle().setText(
+                parameter1 + " vs. " + parameter2);
+        chartConfig.getSubtitle().setText("Source: SPECCHIO");
+
+        chartConfig.getTooltip().setFormatterJsFunc(
+                "function() {"
+                        + " return ''"
+                		+ "+ $wnd.Highcharts.numberFormat(this.x, 4) + '; '"
+                        + "+ $wnd.Highcharts.numberFormat(this.y, 4) ;"
+                        + "}");
+        
+        
+       
+
+        NumberXAxis xAxis = new NumberXAxis();
+        if (parameter1.equals("Reflectance")){
+        	xAxis.setTitle(new AxisTitle(parameter1 + " @ " + df.format(wvl[band_no - 1]) + "nm"));
+        } else {
+        	xAxis.setTitle(new AxisTitle("Parameter1"));
+        }
+        xAxis.setStartOnTick(true);
+        xAxis.setEndOnTick(true);
+        xAxis.setShowLastLabel(true);
+        LinkedHashSet<XAxis> xAxesSet = new LinkedHashSet<InvientChartsConfig.XAxis>();
+        xAxesSet.add(xAxis);
+        chartConfig.setXAxes(xAxesSet);
+
+        NumberYAxis yAxis = new NumberYAxis();
+        if (parameter2.equals("Reflectance")){
+        	yAxis.setTitle(new AxisTitle(parameter2 + " @ " + df.format(wvl[band_no - 1]) + "nm"));
+        } else {
+        	yAxis.setTitle(new AxisTitle("Parameter2"));
+        }
+        LinkedHashSet<YAxis> yAxesSet = new LinkedHashSet<InvientChartsConfig.YAxis>();
+        yAxesSet.add(yAxis);
+        chartConfig.setYAxes(yAxesSet);
+
+        Legend legend = new Legend();
+        legend.setLayout(Layout.VERTICAL);
+        Position legendPos = new Position();
+        legendPos.setAlign(HorzAlign.RIGHT);
+        legendPos.setVertAlign(VertAlign.TOP);
+        legendPos.setX(-10);
+		legendPos.setY(100);
+        legend.setPosition(legendPos);
+        legend.setFloating(true);
+        legend.setBorderWidth(1);
+        legend.setBackgroundColor(new RGB(255, 255, 255));
+        chartConfig.setLegend(legend);
+
+        ScatterConfig scatterCfg = new ScatterConfig();
+
+        SymbolMarker marker = new SymbolMarker(5);
+        scatterCfg.setMarker(marker);
+        marker.setHoverState(new MarkerState());
+        marker.getHoverState().setEnabled(true);
+        marker.getHoverState().setLineColor(new RGB(100, 100, 100));
+        chartConfig.addSeriesConfig(scatterCfg);
+
+        chart = new InvientCharts(chartConfig);
+
+        ScatterConfig scatter = new ScatterConfig();
+        XYSeries seriesData = getSeries(param1_legend_entry + " vs. " + param2_legend_entry, wvl, vectors, band_no, param2_values, refl_on_x);;
+        
+        chart.addSeries(seriesData);
+        
+
+
+		
+		
+		
+		chart.addSeries(seriesData);
+
+		
+	}
+
+	private XYSeries getSeries(String parameter, double[] wvl,
+			double[][] vectors, int band_no, double[] param2_values, boolean refl_on_x) {
+		
+		XYSeries series = null;
+		
+		
+		
+		series = new XYSeries(parameter);
+		
+		ArrayList<Double> xdata = new ArrayList<Double>();
+		ArrayList<Double> ydata = new ArrayList<Double>();
+		
+		if(refl_on_x){
+			for(int i=0; i < vectors.length; i++){
+				xdata.add(vectors[i][band_no]);
+			}
+			for(int i = 0; i < param2_values.length; i++){
+				ydata.add(param2_values[i]);
+			}
+		} else {
+			for(int i=0; i < vectors.length; i++){
+				xdata.add(param2_values[i]);
+			}
+			for(int i = 0; i < param2_values.length; i++){
+				ydata.add(vectors[i][band_no]);
+			}
+		}
+		
+		
+		
+		LinkedHashSet<DecimalPoint> points = getPoints(series, xdata, ydata);
+		
+		series.setSeriesPoints(points);
+		return series;
+	}
+
+	public void generatePlot(String parameter1, String parameter2,
+			double[] param1_values, double[] param2_values) {
+		
+//		String x_unit;
+//		String y_unit;
+//		
+		String param1_legend_entry = parameter1;
+		String param2_legend_entry = parameter2;
+	
+		
+		df = new DecimalFormat("#0.00");
+		
+		
+		InvientChartsConfig chartConfig = new InvientChartsConfig();
+        chartConfig.getGeneralChartConfig().setType(SeriesType.SCATTER);
+        chartConfig.getGeneralChartConfig().setZoomType(ZoomType.XY);
+        chartConfig.getGeneralChartConfig().setMargin(new Margin());
+		chartConfig.getGeneralChartConfig().getMargin().setRight(250);
+		chartConfig.getGeneralChartConfig().getMargin().setBottom(50);
+
+        
+        chartConfig.getTitle().setText(
+                parameter1 + " vs. " + parameter2);
+        chartConfig.getSubtitle().setText("Source: SPECCHIO");
+
+        chartConfig.getTooltip().setFormatterJsFunc(
+                "function() {"
+                        + " return ''"
+                		+ "+ $wnd.Highcharts.numberFormat(this.x, 4) + '; '"
+                        + "+ $wnd.Highcharts.numberFormat(this.y, 4) ;"
+                        + "}");
+        
+        
+       
+
+        NumberXAxis xAxis = new NumberXAxis();
+        
+        xAxis.setTitle(new AxisTitle("Parameter1"));
+        
+        xAxis.setStartOnTick(true);
+        xAxis.setEndOnTick(true);
+        xAxis.setShowLastLabel(true);
+        LinkedHashSet<XAxis> xAxesSet = new LinkedHashSet<InvientChartsConfig.XAxis>();
+        xAxesSet.add(xAxis);
+        chartConfig.setXAxes(xAxesSet);
+
+        NumberYAxis yAxis = new NumberYAxis();
+        
+        yAxis.setTitle(new AxisTitle("Parameter2"));
+        
+        LinkedHashSet<YAxis> yAxesSet = new LinkedHashSet<InvientChartsConfig.YAxis>();
+        yAxesSet.add(yAxis);
+        chartConfig.setYAxes(yAxesSet);
+
+        Legend legend = new Legend();
+        legend.setLayout(Layout.VERTICAL);
+        Position legendPos = new Position();
+        legendPos.setAlign(HorzAlign.RIGHT);
+        legendPos.setVertAlign(VertAlign.TOP);
+        legendPos.setX(-10);
+		legendPos.setY(100);
+        legend.setPosition(legendPos);
+        legend.setFloating(true);
+        legend.setBorderWidth(1);
+        legend.setBackgroundColor(new RGB(255, 255, 255));
+        chartConfig.setLegend(legend);
+
+        ScatterConfig scatterCfg = new ScatterConfig();
+
+        SymbolMarker marker = new SymbolMarker(5);
+        scatterCfg.setMarker(marker);
+        marker.setHoverState(new MarkerState());
+        marker.getHoverState().setEnabled(true);
+        marker.getHoverState().setLineColor(new RGB(100, 100, 100));
+        chartConfig.addSeriesConfig(scatterCfg);
+
+        chart = new InvientCharts(chartConfig);
+
+        ScatterConfig scatter = new ScatterConfig();
+        XYSeries seriesData = getSeries(param1_legend_entry + " vs. " + param2_legend_entry, param1_values, param2_values);
+        
+        chart.addSeries(seriesData);
+        
+
+
+		
+		
+		
+		chart.addSeries(seriesData);
+		
+	}
+
+	private XYSeries getSeries(String seriesname, double[] param1_values,
+			double[] param2_values) {
+		XYSeries series = null;
+		
+		
+		
+		series = new XYSeries(seriesname);
+		
+		ArrayList<Double> xdata = new ArrayList<Double>();
+		ArrayList<Double> ydata = new ArrayList<Double>();
+		
+		for(int i = 0; i < param1_values.length; i++){
+			xdata.add(param1_values[i]);
+			ydata.add(param2_values[i]);
+		}
+		
+		
+		
+		LinkedHashSet<DecimalPoint> points = getPoints(series, xdata, ydata);
+		
+		series.setSeriesPoints(points);
+		return series;
+	}
+
 }
