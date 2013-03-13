@@ -432,6 +432,15 @@ public class SpecchiowebsandboxApplication extends Application implements
 		return timeline.getChart();
 	}
 	
+	public InvientCharts getTimeLinePlot(String parameter){
+		Object[] selected_items = ((Set<Object>) navtree.getValue()).toArray();
+		
+		TimeLinePlot timeline = new TimeLinePlot();
+		timeline.generatePlot(parameter, selected_items);
+		
+		return timeline.getChart();
+	}
+	
 	public InvientCharts getScatterPlot(String parameter, int band_no_param1, int band_no_param2){
 		
 		Object[] selected_items = ((Set<Object>) navtree.getValue()).toArray();
