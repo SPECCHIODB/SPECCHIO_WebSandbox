@@ -44,6 +44,10 @@ import com.invient.vaadin.charts.InvientChartsConfig.GeneralChartConfig.ZoomType
 import com.invient.vaadin.charts.InvientChartsConfig.Legend.Layout;
 import com.vaadin.ui.Panel;
 
+import eav_db.Attributes;
+import eav_db.EAVDBServices;
+import eav_db.Attributes.attribute;
+
 public class TimeLinePlot extends Panel {
 
 	InvientCharts chart = null;
@@ -76,7 +80,7 @@ public class TimeLinePlot extends Panel {
         chartConfig.setXAxes(detailXAxes);
 
 		NumberYAxis reflectanceAxis = new NumberYAxis();
-		reflectanceAxis.setTitle(new AxisTitle("Reflectance"));
+		reflectanceAxis.setTitle(new AxisTitle(parameter));
 		NumberPlotLine plotLine = new NumberPlotLine("Test");
 		plotLine.setValue(new NumberValue(0.0));
 		plotLine.setWidth(1);
@@ -114,17 +118,88 @@ public class TimeLinePlot extends Panel {
 				.setFormatterJsFunc(
 						"function() { "
 								+ " return '<b>' + this.series.name + '</b><br/>'  "
-								+ "+ $wnd.Highcharts.dateFormat('%d.%m.%Y %H:%M:%S',this.x)  + ' nm: '"
+								+ "+ $wnd.Highcharts.dateFormat('%d.%m.%Y %H:%M:%S',this.x)  + ': '"
 								+ "+ $wnd.Highcharts.numberFormat(this.y, 4)"
 								+ "}");
 
 		chart = new InvientCharts(chartConfig);
 		
-		XYSeries seriesData = getSeries(parameter, selected_items, band_no);
+		XYSeries seriesData = null;
+		
+		if(band_no > 0){
+			seriesData = getSeries(parameter, selected_items, band_no);
+		} else {
+			seriesData = getSeries(parameter, selected_items);
+		}
 		
 		chart.addSeries(seriesData);
 		
 
+	}
+	
+	private XYSeries getSeries(String parameter, Object[] selected_items) {
+		
+		XYSeries series = null;
+		
+		EAVDBServices eav_db_service = EAVDBServices.getInstance();
+		
+		eav_db_service.set_primary_x_eav_tablename("spectrum_x_eav","spectrum_id", "spectrum");
+		
+		Attributes attributes = Attributes.getInstance();
+		ArrayList<attribute> attr = attributes.get_attributes("system");
+		
+		ArrayList<Double> values = new ArrayList<Double>();
+		
+//		int index = attr.indexOf(parameter);
+		
+		ArrayList<Integer> itemIds = new ArrayList<Integer>();
+		ArrayList<Object> items = new ArrayList<Object>();
+		
+		for(int i = 0; i < selected_items.length; i++){
+			int index = -1;
+			for(int j = 0; j < attr.size(); j++){
+				if (attr.get(j).getName().equalsIgnoreCase(parameter)){
+					index = j;
+				}
+			}
+			
+			SpectrumData id = (SpectrumData)selected_items[i];
+			
+			itemIds.add(id.getSpectrum_id());
+			
+			items = eav_db_service.get_distinct_list_of_metaparameter_vals(itemIds, parameter, attr.get(index).get_default_storage_field());
+			
+			
+		}
+		
+		for(int i = 0; i < items.size(); i++){
+			Double value = (Double)items.get(i);
+			values.add(value);
+			
+		}
+		
+		
+		SpecchioMetadataServices sms = new SpecchioMetadataServices();
+		
+		ArrayList<Long> capture_dates_millis = new ArrayList<Long>();
+		
+		capture_dates_millis = sms.get_capture_times_in_millis(itemIds);
+		
+		series = new XYSeries(parameter);
+		
+		
+		LinkedHashSet<DecimalPoint> points = getPoints(series, capture_dates_millis, values);
+		
+		series.setSeriesPoints(points);
+		
+		
+		
+		
+		return series;
+	}
+
+	public void generatePlot(String parameter, Object[] selected_items){
+		
 	}
 
 	private XYSeries getSeries(String parameter, Object[] selected_items, int band_no) {
@@ -133,7 +208,7 @@ public class TimeLinePlot extends Panel {
 		
 		XYSeries series = null;
 		
-		if (parameter.equalsIgnoreCase("Wavelength")){
+		if (parameter.equalsIgnoreCase("Reflectance")){
 		
 		ArrayList<SpectrumData> itemIds = new ArrayList<SpectrumData>();
 		ArrayList<Spectrum> spectra = new ArrayList<Spectrum>();
