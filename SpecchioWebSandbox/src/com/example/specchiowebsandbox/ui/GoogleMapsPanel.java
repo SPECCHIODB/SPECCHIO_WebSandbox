@@ -8,7 +8,13 @@ import org.vaadin.vol.Marker;
 import org.vaadin.vol.MarkerLayer;
 import org.vaadin.vol.OpenLayersMap;
 import org.vaadin.vol.OpenStreetMapLayer;
+import org.vaadin.vol.Point;
+import org.vaadin.vol.PointVector;
+import org.vaadin.vol.Vector;
 import org.vaadin.vol.VectorLayer;
+
+import org.vaadin.vol.client.wrappers.LonLat;
+import org.vaadin.vol.client.wrappers.Projection;
 
 //import org.vaadin.hezamu.googlemapwidget.GoogleMap;
 //import org.vaadin.hezamu.googlemapwidget.overlay.BasicMarker;
@@ -60,27 +66,67 @@ public class GoogleMapsPanel extends VerticalLayout{
 //		
 //		grid.addComponent(map);
 		
+		
+		
 		final OpenLayersMap map = new OpenLayersMap();
+//		map.setApiProjection("WGS84");
+		map.setApiProjection("EPSG:4326");
 		
 		GoogleStreetMapLayer google_map = new GoogleStreetMapLayer();
 		
-		OpenStreetMapLayer os_map = new OpenStreetMapLayer();
+		google_map.setParent(map);
 		
+//		google_map.setProjection("EPSG:4326");
+		
+//		OpenStreetMapLayer os_map = new OpenStreetMapLayer();
+//		os_map.setProjection("EPSG:4326");
+		
+		map.addLayer(google_map);
 		
 		MarkerLayer markers = new MarkerLayer();
 		
-		Marker test = new Marker(meta.longitude, meta.latitude);
 	
+		
+	
+		
+		VectorLayer vectors = new VectorLayer();
+		
+//		Projection proj = Projection.get("EPSG:4326");
+		
+//		LonLat lonlat = LonLat.create(meta.longitude, meta.latitude);
+//		lonlat.transform(proj, Projection.get(map.getApiProjection()));
+		
+		
+		
+		
+		
+		
+		
+		
+//		PointVector pvec = new PointVector();
+//		pvec.setProjection("EPSG:4326");
+//		pvec.setPoints(point);
+		
+		
+		
+//		vectors.addVector(pvec);
+		
+
+		
+		Marker test = new Marker(meta.longitude, meta.latitude);
+		
+		
+
 		
 		markers.addMarker(test);
 		
 		
 		
-		
-		map.addLayer(google_map);
-		map.addLayer(os_map);
+//		map.addLayer(google_map);
+//		map.addLayer(os_map);
 		map.addLayer(markers);
 //		map.addLayer((Layer) test);
+		map.addLayer(vectors);
 		
 		map.setCenter(meta.longitude, meta.latitude);
 		
