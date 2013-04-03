@@ -37,6 +37,7 @@ public class GoogleMapsPanel extends VerticalLayout{
 		setSpacing(true);
 		
 		setHeight(320, Sizeable.UNITS_PIXELS);
+		setWidth("100%");
 		
 		
 		// Create a grid layout
@@ -51,6 +52,7 @@ public class GoogleMapsPanel extends VerticalLayout{
 		
 		panel = new Panel("Map");
 		panel.setHeight(320, Sizeable.UNITS_PIXELS);
+		panel.setWidth("100%");
 		
 		VerticalLayout layout = (VerticalLayout) panel.getContent();
 		layout.setMargin(true);
@@ -85,11 +87,14 @@ public class GoogleMapsPanel extends VerticalLayout{
 		
 		MarkerLayer markers = new MarkerLayer();
 		
+		map.addLayer(markers);
+		
 	
 		
 	
 		
 		VectorLayer vectors = new VectorLayer();
+		map.addLayer(vectors);
 		
 //		Projection proj = Projection.get("EPSG:4326");
 		
@@ -102,14 +107,12 @@ public class GoogleMapsPanel extends VerticalLayout{
 		
 		
 		
-		
-//		PointVector pvec = new PointVector();
-//		pvec.setProjection("EPSG:4326");
-//		pvec.setPoints(point);
-		
-		
-		
-//		vectors.addVector(pvec);
+		Point point = new Point(meta.longitude, meta.latitude);
+		PointVector pvec = new PointVector();
+		pvec.setProjection("EPSG:4326");
+		pvec.setPoints(point);
+
+		vectors.addVector(pvec);
 		
 
 		
@@ -124,16 +127,16 @@ public class GoogleMapsPanel extends VerticalLayout{
 		
 //		map.addLayer(google_map);
 //		map.addLayer(os_map);
-		map.addLayer(markers);
+		
 //		map.addLayer((Layer) test);
-		map.addLayer(vectors);
+		
 		
 		map.setCenter(meta.longitude, meta.latitude);
 		
 		map.setZoom(3);
 		
 		map.setHeight(240, UNITS_PIXELS);
-		map.setWidth(550, UNITS_PIXELS);
+		map.setWidth("100%");
 		
 		grid.addComponent(map);
 		
