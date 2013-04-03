@@ -10,6 +10,7 @@ import spaces.SensorAndInstrumentSpace;
 import spaces.Space;
 import specchio.SpaceFactory;
 import specchio.Spectrum;
+import spectral_data_browser.spectral_node_object;
 
 import com.example.specchiowebsandbox.SpecchiowebsandboxApplication;
 import com.example.specchiowebsandbox.data.SpectrumData;
@@ -369,14 +370,14 @@ public class DataExplorationPanel extends VerticalLayout implements
 		
 		if (parameter.equalsIgnoreCase("Reflectance")){
 			
-			ArrayList<SpectrumData> itemIds = new ArrayList<SpectrumData>();
+			ArrayList<spectral_node_object> itemIds = new ArrayList<spectral_node_object>();
 			ArrayList<Spectrum> spectra = new ArrayList<Spectrum>();
 			ArrayList<SpectrumMetadata> metadata = new ArrayList<SpectrumMetadata>();
 			
 			for(int i = 0; i < selected_items.length; i++){
-				itemIds.add((SpectrumData)selected_items[i]);
+				itemIds.add((spectral_node_object)selected_items[i]);
 				try {
-					spectra.add(new Spectrum(itemIds.get(i).getSpectrum_id()));
+					spectra.add(new Spectrum(itemIds.get(i).get_spectrum_ids().get(0)));
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -449,9 +450,9 @@ public class DataExplorationPanel extends VerticalLayout implements
 					}
 				}
 				
-				SpectrumData id = (SpectrumData)selected_items[i];
+				spectral_node_object id = (spectral_node_object)selected_items[i];
 				ArrayList<Integer> itemId = new ArrayList<Integer>();
-				itemId.add(id.getSpectrum_id());
+				itemId.add(id.get_spectrum_ids().get(0));
 				
 				
 				elements.add(eav_db_service.get_distinct_list_of_metaparameter_vals(itemId, parameter, attr.get(index).get_default_storage_field()));
