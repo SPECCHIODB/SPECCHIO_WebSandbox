@@ -11,10 +11,12 @@ public class ListView extends VerticalLayout {
 	
 	private final GridLayout grid;
 
-	public ListView(SpectrumDataPanel spectrumDetail, TwoComponentView position, TwoComponentView info_view, EAVDataPanel eav_data) {
+	public ListView(SpectrumDataPanel spectrumDetail, TwoComponentView position, TwoComponentView info_view, EAVDataPanel eav_data, PicturePanel pic) {
 		// Create a grid layout
 		
-		float height = spectrumDetail.getHeight() + position.getHeight() + info_view.getHeight() + eav_data.getHeight();
+		float height = spectrumDetail.getHeight() + position.getHeight() + info_view.getHeight() + eav_data.getHeight() + pic.getHeight();
+		
+		setWidth("100%");
 		
 		setSpacing(true);
 		
@@ -27,25 +29,29 @@ public class ListView extends VerticalLayout {
 		// The style allows us to visualize the cell borders in this example.
 		grid.addStyleName("gridexample");
 
-		grid.setWidth("1200px");
+		grid.setWidth("100%");
 		grid.setHeight(height + 50, Sizeable.UNITS_PIXELS);
 
 		grid.addComponent(spectrumDetail);
-		grid.setComponentAlignment(spectrumDetail, Alignment.TOP_LEFT);
+		grid.setComponentAlignment(spectrumDetail, Alignment.TOP_CENTER);
 		
 		
 		grid.addComponent(position);
-		grid.setComponentAlignment(position, Alignment.TOP_LEFT);
+		grid.setComponentAlignment(position, Alignment.TOP_CENTER);
 		
 		grid.addComponent(info_view);
-		grid.setComponentAlignment(info_view, Alignment.TOP_LEFT);
+		grid.setComponentAlignment(info_view, Alignment.TOP_CENTER);
 		
 		grid.addComponent(eav_data);
-		grid.setComponentAlignment(eav_data, Alignment.TOP_LEFT);
+		grid.setComponentAlignment(eav_data, Alignment.TOP_CENTER);
+		
+		grid.addComponent(pic);
+		grid.setComponentAlignment(pic, Alignment.TOP_CENTER);
 
 		
 
 		addComponent(grid);
+		this.setComponentAlignment(grid, Alignment.TOP_CENTER);
 	}
 
 	public ListView(SpectrumDataPanel spectrumDetail, TwoComponentView position, TwoComponentView info_view,
@@ -53,6 +59,8 @@ public class ListView extends VerticalLayout {
 
 		// Create a grid layout
 		setSpacing(false);
+		setWidth("100%");
+		
 		
 		setMargin(false);
 		
@@ -62,23 +70,23 @@ public class ListView extends VerticalLayout {
 		// The style allows us to visualize the cell borders in this example.
 		grid.addStyleName("gridexample");
 
-		grid.setWidth("1200px");
+		grid.setWidth("100%");
 		grid.setHeight("2700px");
 
 		grid.addComponent(spectrumDetail);
-		grid.setComponentAlignment(spectrumDetail, Alignment.TOP_LEFT);
+		grid.setComponentAlignment(spectrumDetail, Alignment.TOP_CENTER);
 		
 		grid.addComponent(position);
-		grid.setComponentAlignment(position, Alignment.TOP_LEFT);
+		grid.setComponentAlignment(position, Alignment.TOP_CENTER);
 		
 		grid.addComponent(info_view);
-		grid.setComponentAlignment(info_view, Alignment.TOP_LEFT);
+		grid.setComponentAlignment(info_view, Alignment.TOP_CENTER);
 
 		grid.addComponent(time_line_panel);
-		grid.setComponentAlignment(time_line_panel, Alignment.TOP_LEFT);
+		grid.setComponentAlignment(time_line_panel, Alignment.TOP_CENTER);
 		
 		grid.addComponent(data_expl_panel);
-		grid.setComponentAlignment(data_expl_panel, Alignment.TOP_LEFT);
+		grid.setComponentAlignment(data_expl_panel, Alignment.TOP_CENTER);
 		
 		
 
@@ -89,6 +97,7 @@ public class ListView extends VerticalLayout {
 
 		// Add the layout to the containing layout.
 		addComponent(grid);
+		setComponentAlignment(grid,Alignment.TOP_CENTER);
 
 		// Align the grid itself within its container layout.
 		// setComponentAlignment(grid, Alignment.MIDDLE_CENTER);
