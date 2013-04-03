@@ -19,6 +19,7 @@ public class PositionPanel extends VerticalLayout{
 		setSpacing(true);
 		
 		setHeight(320, Sizeable.UNITS_PIXELS);
+		setWidth("100%");
 		
 		
 		// Create a grid layout
@@ -33,6 +34,7 @@ public class PositionPanel extends VerticalLayout{
 		
 		panel = new Panel("Position");
 		panel.setHeight(320, Sizeable.UNITS_PIXELS);
+		panel.setWidth("100%");
 		
 		VerticalLayout layout = (VerticalLayout) panel.getContent();
 		layout.setMargin(true);
