@@ -26,21 +26,23 @@ import specchio.MetaDatatype;
 import specchio.SPECCHIODatabaseConnection;
 import specchio.SpaceFactory;
 import specchio.Spectrum;
+import spectral_data_browser.spectral_node_object;
 
 import com.example.specchiowebsandbox.data.DBHelper;
 import com.example.specchiowebsandbox.data.EAV_Attribute;
 //import com.example.specchiowebsandbox.data.DataProcessor;
 import com.example.specchiowebsandbox.data.EAV_DataAccess;
 import com.example.specchiowebsandbox.data.SpectrumData;
-import com.example.specchiowebsandbox.data.SpectrumDetailContainer;
+//import com.example.specchiowebsandbox.data.SpectrumDetailContainer;
 import com.example.specchiowebsandbox.data.SpectrumMetadata;
 import com.example.specchiowebsandbox.ui.DataExplorationPanel;
-import com.example.specchiowebsandbox.ui.DetailList;
+//import com.example.specchiowebsandbox.ui.DetailList;
 import com.example.specchiowebsandbox.ui.EAVDataPanel;
 import com.example.specchiowebsandbox.ui.GeneralDataPanel;
 import com.example.specchiowebsandbox.ui.GoogleMapsPanel;
 import com.example.specchiowebsandbox.ui.ListView;
 import com.example.specchiowebsandbox.ui.NavigationTree;
+import com.example.specchiowebsandbox.ui.PicturePanel;
 import com.example.specchiowebsandbox.ui.PositionPanel;
 import com.example.specchiowebsandbox.ui.SamplingGeometryPanel;
 import com.example.specchiowebsandbox.ui.ScatterPlot;
@@ -68,13 +70,13 @@ public class SpecchiowebsandboxApplication extends Application implements
 
 	private Boolean isAppRunningOnGAE;
 
-	private DBHelper dbHelp = new DBHelper(this);
+//	private DBHelper dbHelp = new DBHelper(this);
 
 	NavigationTree navtree = new NavigationTree(this);
 
 	private HorizontalSplitPanel horizontalSplit = new HorizontalSplitPanel();
 
-	private SpectrumDetailContainer spec_cont = null;
+//	private SpectrumDetailContainer spec_cont = null;
 
 	private SpectrumPlot specPlot = null;
 
@@ -103,6 +105,8 @@ public class SpecchiowebsandboxApplication extends Application implements
 	private DataExplorationPanel data_expl_panel;
 
 	private EAVDataPanel eav_data;
+	
+	private PicturePanel pic_panel;
 
 	
 	
@@ -117,12 +121,15 @@ public class SpecchiowebsandboxApplication extends Application implements
 	}
 
 	private void buildMainLayout() {
+		setTheme("reindeer");
 		setMainWindow(new Window("SpecchioWeb Sandbox Application"));
 		int test = getMainWindow().getBrowserWindowWidth();
 		VerticalLayout layout = new VerticalLayout();
 		layout.setSizeFull();
 
+//		Component header = createHeaderBar();
 		layout.addComponent(createHeaderBar());
+//		layout.setComponentAlignment(header, Alignment.TOP_RIGHT);
 		layout.addComponent(horizontalSplit);
 
 		/* Allocate all available extra space to the hoizontal split panel */
@@ -143,6 +150,8 @@ public class SpecchiowebsandboxApplication extends Application implements
 	private Component createHeaderBar(){
 		
 		HorizontalLayout h = new HorizontalLayout();
+		
+		h.setWidth("100%");
 		
 		Button logout = new Button("Logout");
 		
@@ -281,13 +290,13 @@ public class SpecchiowebsandboxApplication extends Application implements
 //
 //	}
 
-	public DBHelper getDbHelp() {
-		return dbHelp;
-	}
+//	public DBHelper getDbHelp() {
+//		return dbHelp;
+//	}
 
-	public SpectrumDetailContainer getSpectrumContainer() {
-		return spec_cont;
-	}
+//	public SpectrumDetailContainer getSpectrumContainer() {
+//		return spec_cont;
+//	}
 
 	public void onRequestStart(HttpServletRequest request,
 			HttpServletResponse response) {
@@ -327,7 +336,7 @@ public class SpecchiowebsandboxApplication extends Application implements
 		Object[] selected_items = ((Set<Object>) navtree.getValue()).toArray();
 		
 		for (int i = 0; i < selected_items.length; i++){
-			SpectrumData itemId = (SpectrumData) selected_items[i];
+			spectral_node_object itemId = (spectral_node_object) selected_items[i];
 			
 			if (itemId != null){
 				try {
@@ -351,7 +360,7 @@ public class SpecchiowebsandboxApplication extends Application implements
 					
 					String test = System.getProperty("user.dir");
 					
-					s = new Spectrum(itemId.getSpectrum_id());
+					s = new Spectrum(itemId.get_spectrum_ids().get(0));
 					
 					
 					
@@ -393,6 +402,7 @@ public class SpecchiowebsandboxApplication extends Application implements
 				general_data_panel = new GeneralDataPanel(s, metadata);
 				sampling_geom_panel  = new SamplingGeometryPanel(s, metadata);
 				map_panel = new GoogleMapsPanel(this, s, metadata);
+				pic_panel = new PicturePanel(this, s, metadata);
 				
 				map = new TwoComponentView(position_panel, map_panel);
 				info_view  = new TwoComponentView(general_data_panel, sampling_geom_panel);
@@ -407,8 +417,11 @@ public class SpecchiowebsandboxApplication extends Application implements
 			data_expl_panel = new DataExplorationPanel(this, s, selected_items);
 			
 			horizontalSplit.setSecondComponent(new ListView(spec_dat_panel, map, info_view, time_line_panel, data_expl_panel));
+			
+			
+			
 		} else{
-			horizontalSplit.setSecondComponent(new ListView(spec_dat_panel, map, info_view, eav_data));
+			horizontalSplit.setSecondComponent(new ListView(spec_dat_panel, map, info_view, eav_data, pic_panel));
 		}
 		
 		
@@ -463,11 +476,11 @@ public class SpecchiowebsandboxApplication extends Application implements
 			
 			
 			for (int i = 0; i < selected_items.length; i++){
-				SpectrumData itemId = (SpectrumData) selected_items[i];
+				spectral_node_object itemId = (spectral_node_object) selected_items[i];
 				
 				if (itemId != null){
 					try {
-						s = new Spectrum(itemId.getSpectrum_id());
+						s = new Spectrum(itemId.get_spectrum_ids().get(0));
 					} catch (SQLException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -496,6 +509,7 @@ public class SpecchiowebsandboxApplication extends Application implements
 					map_panel = new GoogleMapsPanel(this, s, metadata);
 					map = new TwoComponentView(position_panel, map_panel);
 					info_view  = new TwoComponentView(general_data_panel, sampling_geom_panel);
+					pic_panel = new PicturePanel(this, s, metadata);
 				}
 			}
 		} else {
@@ -534,6 +548,7 @@ public class SpecchiowebsandboxApplication extends Application implements
 					map_panel = new GoogleMapsPanel(this, s, metadata);
 					map = new TwoComponentView(position_panel, map_panel);
 					info_view  = new TwoComponentView(general_data_panel, sampling_geom_panel);
+					pic_panel = new PicturePanel(this, s, metadata);
 				}
 			}
 		}
@@ -549,7 +564,7 @@ public class SpecchiowebsandboxApplication extends Application implements
 			
 			horizontalSplit.setSecondComponent(new ListView(spec_dat_panel, map, info_view, time_line_panel, data_expl_panel));
 		} else{
-			horizontalSplit.setSecondComponent(new ListView(spec_dat_panel, map, info_view, eav_data));
+			horizontalSplit.setSecondComponent(new ListView(spec_dat_panel, map, info_view, eav_data, pic_panel));
 		}
 		
 		
