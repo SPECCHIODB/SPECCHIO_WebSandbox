@@ -26,6 +26,7 @@ public class TwoComponentView extends HorizontalLayout{
 		}
 		
 		setHeight(height, Sizeable.UNITS_PIXELS);
+		setWidth("100%");
 		
 		setSpacing(true);
 		
@@ -38,7 +39,7 @@ public class TwoComponentView extends HorizontalLayout{
 		// The style allows us to visualize the cell borders in this example.
 		grid.addStyleName("gridexample");
 
-		grid.setWidth("1200px");
+		grid.setWidth("100%");
 		grid.setHeight(height + 50, Sizeable.UNITS_PIXELS);
 
 		grid.addComponent(comp1);
