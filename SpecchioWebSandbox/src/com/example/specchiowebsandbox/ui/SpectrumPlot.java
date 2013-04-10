@@ -69,6 +69,8 @@ public class SpectrumPlot extends Panel {
 	private double[] wvl = null;
 
 	private double[] data = null;
+	
+	private boolean fullres = false;
 
 	public SpectrumPlot() {
 		// InvientChartsConfig chartConfig = new InvientChartsConfig();
@@ -139,6 +141,8 @@ public class SpectrumPlot extends Panel {
 	}
 
 	public void generatePlot(Spectrum s, boolean full_res) {
+		
+		fullres = full_res;
 
 		if (s.measurement_unit_id == 1) {
 			InvientChartsConfig chartConfig = new InvientChartsConfig();
@@ -385,6 +389,14 @@ public class SpectrumPlot extends Panel {
 
 	public double[] get_wvl_vector() {
 		return wvl;
+	}
+
+	public boolean isFullres() {
+		return fullres;
+	}
+
+	public void setFullres(boolean fullres) {
+		this.fullres = fullres;
 	}
 
 	
