@@ -22,6 +22,10 @@ public class TabLayout extends VerticalLayout{
 		metadata = new VerticalLayout();
 		explorer = new VerticalLayout();
 		
+		general.addComponent(new WelcomePage(app));
+		metadata.addComponent(new WelcomePage(app));
+		explorer.addComponent(new WelcomePage(app));
+		
 //		VerticalLayout l1 = new VerticalLayout();
 //		l1.addComponent(spectrumDetail);
 //		l1.addComponent(position);
@@ -58,6 +62,7 @@ public class TabLayout extends VerticalLayout{
 			metadata.addComponent(comp);
 		}
 		if(tab.equalsIgnoreCase("explor")){
+
 			explorer.addComponent(comp);
 		}
 		
