@@ -11,6 +11,7 @@ import javax.swing.tree.TreeModel;
 
 import spectral_data_browser.SpectralDataBrowser;
 import spectral_data_browser.hierarchy_node;
+import spectral_data_browser.spectral_node_object;
 
 import com.example.specchiowebsandbox.*;
 import com.example.specchiowebsandbox.data.CampaignNode;
@@ -42,45 +43,23 @@ public class NavigationTree extends Tree {
 	private int hyrarchi_id = 0;
 
 	private Connection conn = null;
+	
+	private SpecchiowebsandboxApplication app;
 
 	public NavigationTree(SpecchiowebsandboxApplication app) {
-		addItem(CAMPAIGNS);
-		this.expandItem(CAMPAIGNS);
+		this.app = app;
+//		addItem(CAMPAIGNS);
+//		this.expandItem(CAMPAIGNS);
 		
 
 		setSelectable(true);
 		setNullSelectionAllowed(false);
 		setMultiSelect(true);
 		setImmediate(true);
-
-		try {
-
-			SpectralDataBrowser browser = new SpectralDataBrowser(true);
-			browser.build_tree();
-			JTree tree = browser.tree;
-
-			TreeModel model = tree.getModel();
-			if (model != null) {
-				Object root = model.getRoot();
-				// This would display the database name... This is a hack to
-				// display "Campaigns" instead of the db name...
-				this.addItem(CAMPAIGNS);
-
-//				System.out.println(root.toString());
-				walk(model, root, CAMPAIGNS);
-			} else {
-				System.out.println("Tree is empty");
-			}
-			
-			
-
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		
-
 		addListener((ValueChangeListener) app);
+
+		
 
 	}
 
@@ -110,16 +89,53 @@ public class NavigationTree extends Tree {
 		cc = model.getChildCount(obj);
 		for (int i = 0; i < cc; i++) {
 			Object child = model.getChild(obj, i);
-			if (model.isLeaf(child)) {
-//				System.out.println(child.toString());
-
-			} else {
-				this.addItem(child);
-				this.setParent(child, camp_caption);
-				this.setChildrenAllowed(child, true);
-//				System.out.print(child.toString() + "--");
-				walk(model, child);
-			}
+			walk(model,child);
 		}
+	}
+	
+	public void buildTree(spectral_node_object campaign){
+		try {
+
+			SpectralDataBrowser browser = new SpectralDataBrowser(true);
+			browser.build_tree(campaign.id);
+			JTree tree = browser.tree;
+
+			TreeModel model = tree.getModel();
+			if (model != null) {
+				Object root = model.getRoot();
+				// This would display the database name... This is a hack to
+				// display "Campaigns" instead of the db name...
+//				this.addItem(CAMPAIGNS);
+
+//				System.out.println(root.toString());
+				
+//				this.addItem(root);
+//				this.expandItem(root);
+//				this.setChildrenAllowed(root, true);
+				int cc;
+				cc = model.getChildCount(root);
+				for (int i = 0; i < cc; i++) {
+					Object child = model.getChild(root, i);
+					this.addItem(child);
+					this.setParent(child, root);
+					this.expandItem(child);
+					this.setChildrenAllowed(child, true);
+					walk(model,child);
+				}
+				
+			} else {
+				System.out.println("Tree is empty");
+			}
+			
+			
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			app.showNotification(e.getMessage());
+		}
+		
+
+		
 	}
 }
