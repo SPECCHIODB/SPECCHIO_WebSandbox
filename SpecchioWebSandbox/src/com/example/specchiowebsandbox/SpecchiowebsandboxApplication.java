@@ -44,12 +44,14 @@ import com.example.specchiowebsandbox.ui.PicturePanel;
 import com.example.specchiowebsandbox.ui.PositionPanel;
 import com.example.specchiowebsandbox.ui.SamplingGeometryPanel;
 import com.example.specchiowebsandbox.ui.ScatterPlot;
+import com.example.specchiowebsandbox.ui.SideBar;
 import com.example.specchiowebsandbox.ui.SpectrumDataPanel;
 import com.example.specchiowebsandbox.ui.SpectrumPlot;
 import com.example.specchiowebsandbox.ui.TabLayout;
 import com.example.specchiowebsandbox.ui.TimeLinePanel;
 import com.example.specchiowebsandbox.ui.TimeLinePlot;
 import com.example.specchiowebsandbox.ui.TwoComponentView;
+import com.example.specchiowebsandbox.ui.WelcomePage;
 import com.invient.vaadin.charts.InvientCharts;
 import com.invient.vaadin.charts.InvientCharts.DecimalPoint;
 import com.vaadin.Application;
@@ -57,6 +59,7 @@ import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
+import com.vaadin.terminal.FileResource;
 import com.vaadin.terminal.gwt.server.HttpServletRequestListener;
 import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
@@ -71,7 +74,8 @@ public class SpecchiowebsandboxApplication extends Application implements
 
 	// private DBHelper dbHelp = new DBHelper(this);
 
-	NavigationTree navtree = new NavigationTree(this);
+//	NavigationTree navtree = new NavigationTree(this);
+//	NavigationTree navtree = null;
 
 	private HorizontalSplitPanel horizontalSplit = new HorizontalSplitPanel();
 
@@ -110,6 +114,8 @@ public class SpecchiowebsandboxApplication extends Application implements
 	private TabLayout tabs = new TabLayout(this);
 
 	private PicViewer pic_viewer;
+	
+	private SideBar sidebar;
 
 	@Override
 	public void init() {
@@ -125,6 +131,10 @@ public class SpecchiowebsandboxApplication extends Application implements
 		int test = getMainWindow().getBrowserWindowWidth();
 		VerticalLayout layout = new VerticalLayout();
 		layout.setSizeFull();
+		
+		sidebar = new SideBar(this);
+//		navtree = new NavigationTree(this);
+		
 
 		// Component header = createHeaderBar();
 		layout.addComponent(createHeaderBar());
@@ -134,13 +144,9 @@ public class SpecchiowebsandboxApplication extends Application implements
 		/* Allocate all available extra space to the hoizontal split panel */
 
 		layout.setExpandRatio(horizontalSplit, 1);
-		/*
-		 * Set the initial split position so we can have a 200 pixel menu to the
-		 * left
-		 */
 
-		horizontalSplit.setSplitPosition(200, SplitPanel.UNITS_PIXELS);
-		horizontalSplit.setFirstComponent(navtree);
+		horizontalSplit.setSplitPosition(300, SplitPanel.UNITS_PIXELS);
+		horizontalSplit.setFirstComponent(sidebar);
 		horizontalSplit.setSecondComponent(tabs);
 
 		getMainWindow().setContent(layout);
@@ -150,34 +156,57 @@ public class SpecchiowebsandboxApplication extends Application implements
 	private Component createHeaderBar() {
 
 		HorizontalLayout h = new HorizontalLayout();
+		
+		String local_path = "/usr/local/apache-tomcat-7.0.32/webapps/SpecchioWebSandbox/graphics/";
+		String remote_path = "/var/lib/tomcat6/webapps/SpecchioWebSandbox/graphics/";
 
 		h.setWidth("100%");
+		
+		Embedded specchio_icon = null;
+		Embedded rsl_icon = null;
+		
+//		getMainWindow().showNotification(System.getProperty("user.dir"));
+		if(System.getProperty("user.dir").equals("/var/lib/tomcat6")){
+			specchio_icon = new Embedded("",new FileResource(new File(remote_path + "SPECCHIO_Icon_Mid_Res_small.jpg"),this));
+			rsl_icon = new Embedded("", new FileResource(new File(remote_path + "RSL.gif"),this));
+			
+		}else{
+			specchio_icon = new Embedded("",new FileResource(new File(local_path + "SPECCHIO_Icon_Mid_Res_small.jpg"),this));
+			rsl_icon = new Embedded("", new FileResource(new File(local_path + "RSL.gif"),this));
+		}
+			
+		
+		h.addComponent(specchio_icon);
+		h.setComponentAlignment(specchio_icon, Alignment.BOTTOM_LEFT);
+		
+		h.addComponent(rsl_icon);
+		h.setComponentAlignment(rsl_icon, Alignment.BOTTOM_RIGHT);
 
-		Button logout = new Button("Logout");
-
-		logout.addListener(new ClickListener() {
-			public void buttonClick(ClickEvent event) {
-				DatabaseConnection db = SPECCHIODatabaseConnection
-						.getInstance();
-				// Connection db_conn =
-				// db.get_new_thread_conn_to_current_server(Thread.currentThread());
-
-				// db.close_thread_conn_to_current_server(Thread.currentThread());
-
-				// try {
-				// db_conn.close();
-				// } catch (SQLException e) {
-				// // TODO Auto-generated catch block
-				// e.printStackTrace();
-				// }
-				getApp().close();
-
-				// showLogoutWindow();
-			}
-		});
-
-		h.addComponent(logout);
-		h.setComponentAlignment(logout, Alignment.TOP_RIGHT);
+//		Button logout = new Button("Logout");
+//
+//		logout.addListener(new ClickListener() {
+//			public void buttonClick(ClickEvent event) {
+//				DatabaseConnection db = SPECCHIODatabaseConnection
+//						.getInstance();
+//				// Connection db_conn =
+//				// db.get_new_thread_conn_to_current_server(Thread.currentThread());
+//
+//				// db.close_thread_conn_to_current_server(Thread.currentThread());
+//
+//				// try {
+//				// db_conn.close();
+//				// } catch (SQLException e) {
+//				// // TODO Auto-generated catch block
+//				// e.printStackTrace();
+//				// }
+//				getApp().close();
+//
+//				// showLogoutWindow();
+//			}
+//		});
+//
+//		h.addComponent(logout);
+//		h.setComponentAlignment(logout, Alignment.TOP_RIGHT);
 
 		return h;
 	}
@@ -454,6 +483,7 @@ public class SpecchiowebsandboxApplication extends Application implements
 
 	public InvientCharts getTimelinePlot(String parameter, int band_no) {
 
+		NavigationTree navtree = sidebar.getNavTree();
 		Object[] selected_items = ((Set<Object>) navtree.getValue()).toArray();
 
 		TimeLinePlot timeline = new TimeLinePlot();
@@ -464,6 +494,7 @@ public class SpecchiowebsandboxApplication extends Application implements
 	}
 
 	public InvientCharts getTimeLinePlot(String parameter) {
+		NavigationTree navtree = sidebar.getNavTree();
 		Object[] selected_items = ((Set<Object>) navtree.getValue()).toArray();
 
 		TimeLinePlot timeline = new TimeLinePlot();
@@ -475,6 +506,7 @@ public class SpecchiowebsandboxApplication extends Application implements
 	public InvientCharts getScatterPlot(String parameter, int band_no_param1,
 			int band_no_param2) {
 
+		NavigationTree navtree = sidebar.getNavTree();
 		Object[] selected_items = ((Set<Object>) navtree.getValue()).toArray();
 
 		ScatterPlot scatterplot = new ScatterPlot();
@@ -603,6 +635,7 @@ public class SpecchiowebsandboxApplication extends Application implements
 
 	private void generateContent(boolean full_res) {
 
+		NavigationTree navtree = sidebar.getNavTree();
 		Object[] selected_items = ((Set<Object>) navtree.getValue()).toArray();
 
 		for (int i = 0; i < selected_items.length; i++) {
@@ -675,6 +708,7 @@ public class SpecchiowebsandboxApplication extends Application implements
 			tabs.fillContent(map, "general");
 			tabs.fillContent(info_view, "general");
 			tabs.fillContent(eav_data, "metadata");
+			tabs.fillContent(new WelcomePage(this), "explor");
 
 			pic_viewer = new PicViewer(s, this);
 			tabs.fillContent(pic_viewer, "metadata");
@@ -687,6 +721,10 @@ public class SpecchiowebsandboxApplication extends Application implements
 
 	public SpecchiowebsandboxApplication getApp() {
 		return this;
+	}
+	
+	public void showNotification(String notification){
+		this.getMainWindow().showNotification(notification);
 	}
 
 }
