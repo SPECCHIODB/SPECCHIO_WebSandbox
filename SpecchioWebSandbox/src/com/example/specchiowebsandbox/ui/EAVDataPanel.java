@@ -26,7 +26,7 @@ public class EAVDataPanel extends VerticalLayout {
 		layout.setMargin(false);
 		layout.setSpacing(false);
 
-		Table table = new Table("EAV Data Table");
+		Table table = new Table(null);
 		// set a style name, so we can style rows and cells
 		table.setStyleName("iso3166");
 		//
