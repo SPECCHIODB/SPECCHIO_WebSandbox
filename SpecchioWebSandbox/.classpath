@@ -17,10 +17,9 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/Specchio"/>
 	<classpathentry kind="lib" path="/Users/dkuekenb/Documents/COST_ACTION/Referenced_JARS/javabuilder.jar"/>
 	<classpathentry kind="lib" path="/Users/dkuekenb/Documents/COST_ACTION/Referenced_JARS/JDirectoryDialog.jar"/>
 	<classpathentry kind="lib" path="/Users/dkuekenb/Documents/COST_ACTION/Referenced_JARS/json-simple-1.1.1.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/EAV_DB"/>
+	<classpathentry kind="lib" path="/Users/dkuekenb/Documents/SPECCHIO_V3_Jars/SPECCHIO_V3.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

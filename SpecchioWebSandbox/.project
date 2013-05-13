@@ -3,8 +3,6 @@
 	<name>SpecchioWebSandbox</name>
 	<comment></comment>
 	<projects>
-		<project>EAV_DB</project>
-		<project>Specchio</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
