@@ -3,10 +3,7 @@
     <wb-module deploy-name="SpecchioWebSandbox">
         <wb-resource deploy-path="/" source-path="/WebContent" tag="defaultRootSource"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
-        <dependent-module archiveName="EAV_DB.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/EAV_DB/EAV_DB">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="Specchio.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/Specchio/Specchio">
+        <dependent-module archiveName="SPECCHIO_V3.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib//Users/dkuekenb/Documents/SPECCHIO_V3_Jars/SPECCHIO_V3.jar">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <property name="context-root" value="SpecchioWebSandbox"/>
