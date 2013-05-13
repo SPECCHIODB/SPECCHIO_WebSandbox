@@ -1,6 +1,6 @@
 package com.example.specchiowebsandbox.ui;
 
-import specchio.Spectrum;
+import ch.specchio.types.Spectrum;
 
 import com.example.specchiowebsandbox.data.SpectrumMetadata;
 import com.vaadin.terminal.Sizeable;

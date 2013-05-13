@@ -2,6 +2,10 @@ package com.example.specchiowebsandbox.ui;
 
 import java.util.ArrayList;
 
+import ch.specchio.client.SPECCHIOClient;
+import ch.specchio.types.ConflictTable;
+import ch.specchio.types.Spectrum;
+
 import com.example.specchiowebsandbox.SpecchiowebsandboxApplication;
 import com.example.specchiowebsandbox.data.EAV_Attribute;
 import com.example.specchiowebsandbox.data.EAV_DataAccess;
@@ -15,7 +19,7 @@ public class EAVDataPanel extends VerticalLayout {
 
 	private Panel panel;
 
-	public EAVDataPanel(int spec_id) {
+	public EAVDataPanel(Spectrum s, ConflictTable conflicts, SpecchiowebsandboxApplication app) {
 		
 		setHeight(620, Sizeable.UNITS_PIXELS);
 		
@@ -36,7 +40,7 @@ public class EAVDataPanel extends VerticalLayout {
 		// setSizeFull();
 
 		BeanItemContainer<EAV_Attribute> dataSource = EAV_DataAccess
-				.createEAVDataContainer(spec_id);
+				.createEAVDataContainer(s, conflicts, app);
 
 		table.setContainerDataSource(dataSource);
 

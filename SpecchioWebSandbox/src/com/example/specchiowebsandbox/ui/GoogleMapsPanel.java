@@ -22,7 +22,7 @@ import org.vaadin.vol.client.wrappers.Projection;
 //import org.vaadin.hezamu.googlemapwidget.GoogleMap;
 //import org.vaadin.hezamu.googlemapwidget.overlay.BasicMarker;
 
-import specchio.Spectrum;
+import ch.specchio.types.Spectrum;
 
 import com.example.specchiowebsandbox.SpecchiowebsandboxApplication;
 import com.example.specchiowebsandbox.data.SpectrumMetadata;

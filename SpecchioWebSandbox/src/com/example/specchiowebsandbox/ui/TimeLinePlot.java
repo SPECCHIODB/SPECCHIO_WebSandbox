@@ -6,13 +6,18 @@ import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.ListIterator;
 
-import spaces.SensorAndInstrumentSpace;
-import spaces.Space;
-import specchio.SpaceFactory;
-import specchio.SpecchioMetadataServices;
-import specchio.Spectrum;
-import spectral_data_browser.spectral_node_object;
+import ch.specchio.client.SPECCHIOClientException;
+import ch.specchio.gui.SpectralDataBrowser.SpectralDataBrowserNode;
+import ch.specchio.spaces.SensorAndInstrumentSpace;
+import ch.specchio.spaces.Space;
+import ch.specchio.types.MetaParameter;
+//import ch.specchio.factories.SPECCHIOFactory;
+//import ch.specchio.factories.SpaceFactory;
+//import specchio.SpecchioMetadataServices;
+import ch.specchio.types.Spectrum;
+import ch.specchio.types.spectral_node_object;
 
+import com.example.specchiowebsandbox.SpecchiowebsandboxApplication;
 import com.example.specchiowebsandbox.data.SpectrumData;
 import com.example.specchiowebsandbox.data.SpectrumMetadata;
 import com.invient.vaadin.charts.InvientCharts;
@@ -45,21 +50,23 @@ import com.invient.vaadin.charts.InvientChartsConfig.GeneralChartConfig.ZoomType
 import com.invient.vaadin.charts.InvientChartsConfig.Legend.Layout;
 import com.vaadin.ui.Panel;
 
-import eav_db.Attributes;
-import eav_db.EAVDBServices;
-import eav_db.Attributes.attribute;
+//import eav_db.Attributes;
+//import eav_db.EAVDBServices;
+//import eav_db.Attributes.attribute;
 
 public class TimeLinePlot extends Panel {
 
 	InvientCharts chart = null;
 
-	private double[] wvl = null;
+//	private double[] wvl = null;
+	
+	private SpecchiowebsandboxApplication app;
 
-	public TimeLinePlot() {
-
+	public TimeLinePlot(SpecchiowebsandboxApplication app) {
+		this.app = app;
 	}
 
-	public void generatePlot(String parameter, int band_no, Object[] selected_items) {
+	public void generatePlot(Space space, String parameter, int band_no, Object[] selected_items) {
 
 		InvientChartsConfig chartConfig = new InvientChartsConfig();
 		chartConfig.getGeneralChartConfig().setType(SeriesType.LINE);
@@ -128,7 +135,7 @@ public class TimeLinePlot extends Panel {
 		XYSeries seriesData = null;
 		
 		if(band_no > 0){
-			seriesData = getSeries(parameter, selected_items, band_no);
+			seriesData = getSeries(space, parameter, selected_items, band_no);
 		} else {
 			seriesData = getSeries(parameter, selected_items);
 		}
@@ -142,54 +149,24 @@ public class TimeLinePlot extends Panel {
 		
 		XYSeries series = null;
 		
-		EAVDBServices eav_db_service = EAVDBServices.getInstance();
-		
-		eav_db_service.set_primary_x_eav_tablename("spectrum_x_eav","spectrum_id", "spectrum");
-		
-		Attributes attributes = Attributes.getInstance();
-		ArrayList<attribute> attr = attributes.get_attributes("system");
-		
 		ArrayList<Double> values = new ArrayList<Double>();
+		ArrayList<Long> capture_dates_milis = new ArrayList<Long>();
 		
-//		int index = attr.indexOf(parameter);
 		
-		ArrayList<Integer> itemIds = new ArrayList<Integer>();
-		ArrayList<Object> items = new ArrayList<Object>();
-		
-		for(int i = 0; i < selected_items.length; i++){
-			int index = -1;
-			for(int j = 0; j < attr.size(); j++){
-				if (attr.get(j).getName().equalsIgnoreCase(parameter)){
-					index = j;
-				}
+		for(Spectrum spec : app.spectra){
+			MetaParameter entry = spec.getMetadata().get_entry(parameter);
+			//Only double values can be displayed for now...
+			if(entry.getDefaultStorageField().equals("double_val")){
+				values.add((Double) spec.getMetadata().get_entry(parameter).getValue());
 			}
-			
-			spectral_node_object id = (spectral_node_object)selected_items[i];
-			
-			itemIds.add(id.get_spectrum_ids().get(0));
-			
-			items = eav_db_service.get_distinct_list_of_metaparameter_vals(itemIds, parameter, attr.get(index).get_default_storage_field());
-			
-			
+			Date date = (Date)spec.getMetadata().get_entry("Acquisition Time").getValue();
+			capture_dates_milis.add(date.getTime());
 		}
-		
-		for(int i = 0; i < items.size(); i++){
-			Double value = (Double)items.get(i);
-			values.add(value);
-			
-		}
-		
-		
-		SpecchioMetadataServices sms = new SpecchioMetadataServices();
-		
-		ArrayList<Long> capture_dates_millis = new ArrayList<Long>();
-		
-		capture_dates_millis = sms.get_capture_times_in_millis(itemIds);
-		
+
 		series = new XYSeries(parameter);
 		
 		
-		LinkedHashSet<DecimalPoint> points = getPoints(series, capture_dates_millis, values);
+		LinkedHashSet<DecimalPoint> points = getPoints(series, capture_dates_milis, values);
 		
 		series.setSeriesPoints(points);
 		
@@ -203,106 +180,38 @@ public class TimeLinePlot extends Panel {
 		
 	}
 
-	private XYSeries getSeries(String parameter, Object[] selected_items, int band_no) {
+	private XYSeries getSeries(Space space, String parameter, Object[] selected_items, int band_no) {
 		
-		
+		SensorAndInstrumentSpace si_space = (SensorAndInstrumentSpace)space;
 		
 		XYSeries series = null;
 		
-		if (parameter.equalsIgnoreCase("Reflectance")){
-		
-		ArrayList<spectral_node_object> itemIds = new ArrayList<spectral_node_object>();
-		ArrayList<Spectrum> spectra = new ArrayList<Spectrum>();
-		ArrayList<SpectrumMetadata> metadata = new ArrayList<SpectrumMetadata>();
-		
-		for(int i = 0; i < selected_items.length; i++){
-			itemIds.add((spectral_node_object)selected_items[i]);
-			try {
-				spectra.add(new Spectrum(itemIds.get(i).get_spectrum_ids().get(0)));
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			SpectrumMetadata meta = new SpectrumMetadata(spectra.get(i));
-			meta.fillMetadata();
-			metadata.add(meta);
-		}
-		
-		SpaceFactory sf = SpaceFactory.getInstance();
-		
-		
-		
-		ArrayList<Space> spaces = null;
-		ArrayList<Integer> ids = new ArrayList<Integer>();
-//		ArrayList<double[][]> vectors = new ArrayList<double[][]>();
+		ArrayList<Long> capture_dates_milis = new ArrayList<Long>();
 		ArrayList<Double> data = new ArrayList<Double>();
 		
-		ListIterator<Spectrum> li = spectra.listIterator();
+		double[] wvls = null;
 		
-		while (li.hasNext()){
-			Spectrum spectrum = li.next();
-			ids.add(spectrum.spectrum_id);
+		if (parameter.equalsIgnoreCase("Reflectance")){
+			
+			for(Spectrum spec : app.spectra){
+				double[] vectors = si_space.getVector(spec.spectrum_id);
+				wvls = si_space.getAverageWavelengths();
+				
+				Date date = (Date)spec.getMetadata().get_entry("Acquisition Time").getValue();
+				capture_dates_milis.add(date.getTime());
+				
+				data.add(vectors[band_no-1]);
+				
+			}
+			
+			series = new XYSeries(Double.toString(wvls[band_no-1]) + " nm");
+			
+			
+			LinkedHashSet<DecimalPoint> points = getPoints(series, capture_dates_milis, data);
+			
+			series.setSeriesPoints(points);
 		}
-		
-		spaces = sf.create_spaces(ids);
-		
-		ListIterator<Space> spaces_li = spaces.listIterator();
-		
-//		while (spaces_li.hasNext()){
-//			spaces_li.next().load_data();
-//			
-//		}
-//		
-//		for(int i = 0; i < spaces.size(); i++){
-//			vectors.add(spaces.get(i).get_array());
-//			data.add(vectors.get(i)[i]);
-//		}
-		
-		spaces.Space space = spaces_li.next();
-		
-		space.load_data();
-		
-		double[][] vectors = space.get_array();
-		
-		SensorAndInstrumentSpace instr_space = (SensorAndInstrumentSpace) space;
-
-		wvl = instr_space.get_wvls();
-		
-		
-		for(int i = 0; i < vectors.length; i++){
-			data.add(vectors[i][band_no-1]);
-		}
-		
-		
-		
-		SpecchioMetadataServices sms = new SpecchioMetadataServices();
-		
-		ArrayList<Long> capture_dates_millis = new ArrayList<Long>();
-		
-		capture_dates_millis = sms.get_capture_times_in_millis(ids);
-		
-		
-//		ArrayList<Date> time = new ArrayList<Date>();
-//		
-//		ListIterator<SpectrumMetadata> meta_li = metadata.listIterator();
-//		
-//		while(meta_li.hasNext()){
-//			time.add(new Date(meta_li.next().capture_date.getTime()));
-//		}
-		
-		series = new XYSeries(Double.toString(wvl[band_no-1]) + " nm");
-		
-		
-		LinkedHashSet<DecimalPoint> points = getPoints(series, capture_dates_millis, data);
-		
-		series.setSeriesPoints(points);
-		
-		
-		
-		}
-		
-		
-		
+				
 		
 		return series;
 	}

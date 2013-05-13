@@ -6,11 +6,10 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.ListIterator;
 
-import spaces.SensorAndInstrumentSpace;
-import spaces.Space;
-import specchio.SpaceFactory;
-import specchio.SpecchioMetadataServices;
-import specchio.Spectrum;
+import ch.specchio.spaces.SensorAndInstrumentSpace;
+import ch.specchio.spaces.Space;
+//import ch.specchio.services.SpecchioMetadataServices;
+import ch.specchio.types.Spectrum;
 
 import com.example.specchiowebsandbox.data.SpectrumData;
 import com.example.specchiowebsandbox.data.SpectrumMetadata;

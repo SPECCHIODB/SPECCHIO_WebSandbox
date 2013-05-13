@@ -1,6 +1,6 @@
 package com.example.specchiowebsandbox.ui;
 
-import specchio.Spectrum;
+import ch.specchio.types.Spectrum;
 
 import com.example.specchiowebsandbox.SpecchiowebsandboxApplication;
 import com.example.specchiowebsandbox.data.SpectrumMetadata;
@@ -24,7 +24,7 @@ public class SpectrumDataPanel extends VerticalLayout{
 	
 	private CheckBox cb;
 	
-	public SpectrumDataPanel(SpecchiowebsandboxApplication app, Spectrum spec, InvientCharts chart, SpectrumMetadata meta, boolean full_res){
+	public SpectrumDataPanel(SpecchiowebsandboxApplication app, Spectrum spec, InvientCharts chart, boolean full_res){
 		setSpacing(true);
 		
 		setHeight(620, Sizeable.UNITS_PIXELS);
@@ -54,14 +54,15 @@ public class SpectrumDataPanel extends VerticalLayout{
 		grid.addComponent(file_name);
 		grid.setComponentAlignment(file_name, Alignment.MIDDLE_LEFT);
 		
+		
 		TextField capture_date = new TextField("Capture Date:");
-		capture_date.setValue(meta.capture_date);
+		capture_date.setValue(spec.getMetadata().get_entry("Acquisition Time").valueAsString());
 		capture_date.setWidth("100%");
 		grid.addComponent(capture_date);
 		grid.setComponentAlignment(capture_date, Alignment.MIDDLE_LEFT);
 		
 		TextField loading_date = new TextField("Loading Date:");
-		loading_date.setValue(meta.loading_date);
+		loading_date.setValue(spec.getMetadata().get_entry("Loading Time").valueAsString());
 		loading_date.setWidth("100%");
 		grid.addComponent(loading_date);
 		grid.setComponentAlignment(loading_date, Alignment.MIDDLE_LEFT);

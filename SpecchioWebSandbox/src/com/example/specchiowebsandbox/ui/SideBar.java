@@ -3,9 +3,11 @@ package com.example.specchiowebsandbox.ui;
 import java.sql.SQLException;
 import java.util.Enumeration;
 
-import spectral_data_browser.SpectralDataBrowser;
-import spectral_data_browser.campaign_node;
-import spectral_data_browser.spectral_node_object;
+import ch.specchio.client.SPECCHIOClientException;
+import ch.specchio.gui.SpectralDataBrowser;
+import ch.specchio.gui.SpectralDataBrowser.SpectralDataBrowserNode;
+import ch.specchio.types.campaign_node;
+import ch.specchio.types.spectral_node_object;
 
 import com.example.specchiowebsandbox.SpecchiowebsandboxApplication;
 import com.vaadin.data.Container.PropertySetChangeEvent;
@@ -38,20 +40,24 @@ public class SideBar extends VerticalLayout implements ValueChangeListener {
 		campaign_select.setImmediate(true);
 
 		campaign_select.addListener(this);
+		
+		SpectralDataBrowser browser = new SpectralDataBrowser(app.specchio_client, false);
 
-		SpectralDataBrowser browser = new SpectralDataBrowser(true);
+		
+
+		//SpectralDataBrowser browser = new SpectralDataBrowser(true);
 		try {
 			browser.build_tree();
-		} catch (SQLException e1) {
+		} catch (SPECCHIOClientException e) {
 			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			e.printStackTrace();
 		}
-		spectral_node_object root = browser.root;
+		 SpectralDataBrowserNode root = browser.root;
 
 		Enumeration children = root.children();
 
 		while (children.hasMoreElements()) {
-			campaign_select.addItem((campaign_node) children.nextElement());
+			campaign_select.addItem(children.nextElement());
 		}
 
 		addComponent(campaign_select);
@@ -72,7 +78,7 @@ public class SideBar extends VerticalLayout implements ValueChangeListener {
 		}
 
 		tree = new NavigationTree(app);
-		tree.buildTree((campaign_node) event.getProperty().getValue());
+		tree.buildTree((SpectralDataBrowserNode) event.getProperty().getValue());
 
 		addComponent(tree);
 

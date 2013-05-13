@@ -9,9 +9,10 @@ import java.util.ArrayList;
 import javax.swing.JTree;
 import javax.swing.tree.TreeModel;
 
-import spectral_data_browser.SpectralDataBrowser;
-import spectral_data_browser.hierarchy_node;
-import spectral_data_browser.spectral_node_object;
+import ch.specchio.gui.SpectralDataBrowser;
+import ch.specchio.gui.SpectralDataBrowser.SpectralDataBrowserNode;
+import ch.specchio.types.hierarchy_node;
+import ch.specchio.types.spectral_node_object;
 
 import com.example.specchiowebsandbox.*;
 import com.example.specchiowebsandbox.data.CampaignNode;
@@ -22,7 +23,6 @@ import com.example.specchiowebsandbox.data.SpectrumData;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.ui.Tree;
 
-import eav_db.DatabaseConnection;
 
 public class NavigationTree extends Tree {
 	public static final Object CAMPAIGNS = "Campaigns";
@@ -93,11 +93,11 @@ public class NavigationTree extends Tree {
 		}
 	}
 	
-	public void buildTree(spectral_node_object campaign){
+	public void buildTree(SpectralDataBrowserNode campaign){
 		try {
 
-			SpectralDataBrowser browser = new SpectralDataBrowser(true);
-			browser.build_tree(campaign.id);
+			SpectralDataBrowser browser = new SpectralDataBrowser(app.specchio_client, false);
+			browser.build_tree(campaign.getNodeId());
 			JTree tree = browser.tree;
 
 			TreeModel model = tree.getModel();

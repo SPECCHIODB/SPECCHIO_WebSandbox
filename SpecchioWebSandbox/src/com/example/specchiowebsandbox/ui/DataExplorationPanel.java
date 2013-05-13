@@ -6,13 +6,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.ListIterator;
 
-import spaces.SensorAndInstrumentSpace;
-import spaces.Space;
-import specchio.SpaceFactory;
-import specchio.Spectrum;
-import spectral_data_browser.spectral_node_object;
+import ch.specchio.spaces.SensorAndInstrumentSpace;
+import ch.specchio.spaces.Space;
+import ch.specchio.types.MetaParameter;
+import ch.specchio.types.Spectrum;
+import ch.specchio.types.spectral_node_object;
 
 import com.example.specchiowebsandbox.SpecchiowebsandboxApplication;
+import com.example.specchiowebsandbox.data.EAV_Attribute;
 import com.example.specchiowebsandbox.data.SpectrumData;
 import com.example.specchiowebsandbox.data.SpectrumMetadata;
 import com.invient.vaadin.charts.InvientCharts;
@@ -31,9 +32,6 @@ import com.vaadin.ui.Slider;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
-import eav_db.Attributes;
-import eav_db.EAVDBServices;
-import eav_db.Attributes.attribute;
 
 
 public class DataExplorationPanel extends VerticalLayout implements
@@ -76,10 +74,15 @@ public class DataExplorationPanel extends VerticalLayout implements
 	
 	final TextField selected_wvl2 = new TextField("Selected Wavelength:");
 	final Slider slider2 = new Slider("Select the band number:");
+	
+	private SensorAndInstrumentSpace space;
 
-	public DataExplorationPanel(SpecchiowebsandboxApplication app, Spectrum spec, Object[] selection) {
+	public DataExplorationPanel(SpecchiowebsandboxApplication app, SensorAndInstrumentSpace space, Spectrum spec, Object[] selection) {
 		
 		application = app;
+		
+		this.space = space;
+		
 		
 		df = new DecimalFormat("#0.00");
 		
@@ -109,11 +112,11 @@ public class DataExplorationPanel extends VerticalLayout implements
 		
 		// Create DropDown Menu to select parameter to be visualized
 		
-		getParametersList(spec);
+//		getParametersList(spec);
 
-		
-		for (int i = 0; i < parameters.size(); i++) {
-			dropdown1.addItem(parameters.get(i));
+		dropdown1.addItem("Reflectance");
+		for (EAV_Attribute attr : application.eav_attributes) {
+			dropdown1.addItem(attr.getAttrName());
 		}
 
 		dropdown1.setNullSelectionAllowed(true);
@@ -214,9 +217,9 @@ public class DataExplorationPanel extends VerticalLayout implements
 		
 		grid.addComponent(dropdown1);
 		
-		
-		for(int i = 0; i < parameters.size(); i++){
-			dropdown2.addItem(parameters.get(i));
+		dropdown2.addItem("Reflectance");
+		for(EAV_Attribute attr : application.eav_attributes){
+			dropdown2.addItem(attr.getAttrName());
 		}
 		
 		dropdown2.setNullSelectionAllowed(true);
@@ -370,148 +373,76 @@ public class DataExplorationPanel extends VerticalLayout implements
 		
 		if (parameter.equalsIgnoreCase("Reflectance")){
 			
-			ArrayList<spectral_node_object> itemIds = new ArrayList<spectral_node_object>();
-			ArrayList<Spectrum> spectra = new ArrayList<Spectrum>();
-			ArrayList<SpectrumMetadata> metadata = new ArrayList<SpectrumMetadata>();
-			
-			for(int i = 0; i < selected_items.length; i++){
-				itemIds.add((spectral_node_object)selected_items[i]);
-				try {
-					spectra.add(new Spectrum(itemIds.get(i).get_spectrum_ids().get(0)));
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				SpectrumMetadata meta = new SpectrumMetadata(spectra.get(i));
-				meta.fillMetadata();
-				metadata.add(meta);
-			}
-			
-			SpaceFactory sf = SpaceFactory.getInstance();
 			
 			
-			
-			ArrayList<Space> spaces = null;
-			ArrayList<Integer> ids = new ArrayList<Integer>();
-//			ArrayList<double[][]> vectors = new ArrayList<double[][]>();
-			ArrayList<Double> data = new ArrayList<Double>();
-			
-			ListIterator<Spectrum> li = spectra.listIterator();
-			
-			while (li.hasNext()){
-				Spectrum spectrum = li.next();
-				ids.add(spectrum.spectrum_id);
-			}
-			
-			spaces = sf.create_spaces(ids);
-			
-			ListIterator<Space> spaces_li = spaces.listIterator();
-			
-//			while (spaces_li.hasNext()){
-//				spaces_li.next().load_data();
-//				
-//			}
-//			
-//			for(int i = 0; i < spaces.size(); i++){
-//				vectors.add(spaces.get(i).get_array());
-//				data.add(vectors.get(i)[i]);
-//			}
-			
-			spaces.Space space = spaces_li.next();
-			
-			space.load_data();
-			
-			vectors = space.get_array();
-			
-			SensorAndInstrumentSpace instr_space = (SensorAndInstrumentSpace) space;
-
-			wvl = instr_space.get_wvls();
+			vectors = space.getVectorsAsArray();
+			wvl = space.getAverageWavelengths();
+				
 			
 			
 		} else {
-			EAVDBServices eav_db_service = EAVDBServices.getInstance();
 			
-			eav_db_service.set_primary_x_eav_tablename("spectrum_x_eav","spectrum_id", "spectrum");
+			int index = 0;
 			
-			Attributes attributes = Attributes.getInstance();
-			ArrayList<attribute> attr = attributes.get_attributes("system");
-			
-			ArrayList<Object> elements = new ArrayList<Object>();
-			
-//			int index = attr.indexOf(parameter);
-			
-			
-			
-			for(int i = 0; i < selected_items.length; i++){
-				int index = -1;
-				for(int j = 0; j < attr.size(); j++){
-					if (attr.get(j).getName().equalsIgnoreCase(parameter)){
-						index = j;
+			for(Spectrum spec:application.spectra){
+				
+				if(param1orparam2.equals("param1")){
+					if(param1_values==null){
+						param1_values = new double[selected_items.length];
 					}
-				}
-				
-				spectral_node_object id = (spectral_node_object)selected_items[i];
-				ArrayList<Integer> itemId = new ArrayList<Integer>();
-				itemId.add(id.get_spectrum_ids().get(0));
-				
-				
-				elements.add(eav_db_service.get_distinct_list_of_metaparameter_vals(itemId, parameter, attr.get(index).get_default_storage_field()));
-				
-				
-//				elements.add(eav_db_service.get_distinct_list_of_metaparameter_vals(selected_items[i]., attribute, field));
-				
-//				SpectrumData itemId = (SpectrumData) selected_items[i];
-//				
-//				eav_db_service.get_distinct_list_of_metaparameter_vals(itemId.getSpectrum_id(), parameter, );
-				
-				
-			}
-			
-			if (param1orparam2.equals("param1")) {
-				param1_values = new double[elements.size()];
-				
-			
-
-				for (int i = 0; i < elements.size(); i++) {
-					ArrayList<Object> item = (ArrayList<Object>) elements.get(i);
-					Double double_val = (Double) item.get(0);
-					param1_values[i] = double_val.doubleValue();
-				}
-			} else if (param1orparam2.equals("param2")){
-				param2_values = new double[elements.size()];
-				
-				for (int i = 0; i < elements.size(); i++){
-					ArrayList<Object> item = (ArrayList<Object>) elements.get(i);
-					Double double_val = (Double) item.get(0);
-					param2_values[i] = double_val.doubleValue();
+					MetaParameter entry = spec.getMetadata().get_entry(parameter);
+					//only double values are supported for now...
+					if(entry.getDefaultStorageField().equals("double_val")){
+						
+						param1_values[index]=(Double)entry.getValue();
+						index++;
+					}else if(entry.getDefaultStorageField().equals("int_val")){
+						param1_values[index]=Double.parseDouble(Integer.toString((Integer)entry.getValue()));
+						index++;
+					}
+				}else if(param1orparam2.equals("param2")){
+					if(param2_values==null){
+						param2_values = new double[selected_items.length];
+					}
+					
+					MetaParameter entry = spec.getMetadata().get_entry(parameter);
+					if(entry.getDefaultStorageField().equals("double_val")){
+						param2_values[index]=(Double)entry.getValue();
+						index++;
+					}else if(entry.getDefaultStorageField().equals("int_val")){
+						param2_values[index]=Double.parseDouble(Integer.toString((Integer)entry.getValue()));
+						index++;
+					}
 				}
 			}
 		}
+			
+			
 	}
 	
 	public void getParametersList(Spectrum spec){
-		EAVDBServices eav_db_service = EAVDBServices.getInstance();
-		
-		ArrayList<Integer> spec_ids = new ArrayList<Integer>();
-		spec_ids.add(spec.spectrum_id);
-		
-		eav_db_service.set_primary_x_eav_tablename("spectrum_x_eav","spectrum_id", "spectrum");
-		
-		Attributes attributes = Attributes.getInstance();
-		ArrayList<attribute> attr = attributes.get_attributes("system");
-		
-		parameters = new ArrayList<String>();
-		
-		parameters.add("Reflectance");
-		
-		for(int i = 1; i< attr.size(); i++){
-			
-			if( attr.get(i-1).get_default_storage_field() != null){
-				parameters.add(attr.get(i-1).getName());
-			}
-		}
-		
-		
+//		EAVDBServices eav_db_service = EAVDBServices.getInstance();
+//		
+//		ArrayList<Integer> spec_ids = new ArrayList<Integer>();
+//		spec_ids.add(spec.spectrum_id);
+//		
+//		eav_db_service.set_primary_x_eav_tablename("spectrum_x_eav","spectrum_id", "spectrum");
+//		
+//		Attributes attributes = Attributes.getInstance();
+//		ArrayList<attribute> attr = attributes.get_attributes("system");
+//		
+//		parameters = new ArrayList<String>();
+//		
+//		parameters.add("Reflectance");
+//		
+//		for(int i = 1; i< attr.size(); i++){
+//			
+//			if( attr.get(i-1).get_default_storage_field() != null){
+//				parameters.add(attr.get(i-1).getName());
+//			}
+//		}
+//		
+//		
 	}
 
 	public void valueChange(ValueChangeEvent event) {

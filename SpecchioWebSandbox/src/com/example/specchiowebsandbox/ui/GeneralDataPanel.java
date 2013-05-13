@@ -1,6 +1,11 @@
 package com.example.specchiowebsandbox.ui;
 
-import specchio.Spectrum;
+import java.util.ArrayList;
+
+import ch.specchio.spaces.SensorAndInstrumentSpace;
+import ch.specchio.types.MetaDatatype;
+import ch.specchio.types.MetaParameter;
+import ch.specchio.types.Spectrum;
 
 import com.example.specchiowebsandbox.data.SpectrumMetadata;
 import com.vaadin.terminal.Sizeable;
@@ -14,7 +19,7 @@ public class GeneralDataPanel extends VerticalLayout{
 	
 	private Panel panel;
 	
-	public GeneralDataPanel(Spectrum spec, SpectrumMetadata meta){
+	public GeneralDataPanel(SensorAndInstrumentSpace space, Spectrum spec, SpectrumMetadata meta){
 		
 		setSpacing(true);
 		
@@ -38,10 +43,13 @@ public class GeneralDataPanel extends VerticalLayout{
 		layout.setMargin(true);
 		layout.setSpacing(true);
 //		addComponent(panel);
+		
+	
+		
 	
 		
 		TextField measurement_unit = new TextField("Measurement Unit:");
-		measurement_unit.setValue(meta.measurement_unit);
+		measurement_unit.setValue(space.getMeasurementUnit().getUnitName());
 		measurement_unit.setWidth("100%");
 //		file_name_field.setReadOnly(true);
 		grid.addComponent(measurement_unit);
@@ -55,7 +63,7 @@ public class GeneralDataPanel extends VerticalLayout{
 		grid.setComponentAlignment(sampling_env, Alignment.MIDDLE_LEFT);
 		
 		TextField beam_geom = new TextField("Beam Geometry:");
-		beam_geom.setValue(meta.beam_geometry);
+		beam_geom.setValue(spec.getMeasurementType());
 		beam_geom.setWidth("100%");
 //		file_name_field.setReadOnly(true);
 		grid.addComponent(beam_geom);

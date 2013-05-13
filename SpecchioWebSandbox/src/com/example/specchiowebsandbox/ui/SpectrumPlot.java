@@ -8,11 +8,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.ListIterator;
 
-import spaces.SensorAndInstrumentSpace;
-import spaces.Space;
-import specchio.MetaDatatype;
-import specchio.SpaceFactory;
-import specchio.Spectrum;
+import ch.specchio.spaces.SensorAndInstrumentSpace;
+import ch.specchio.spaces.Space;
+import ch.specchio.types.MetaDatatype;
+import ch.specchio.types.Spectrum;
 
 import com.invient.vaadin.charts.Gradient;
 import com.invient.vaadin.charts.InvientCharts;
@@ -58,9 +57,6 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.Button;
 
-import eav_db.DatabaseConnection;
-import eav_db.QueryBuilderBaseClass;
-import eav_db.connection_details_class;
 
 public class SpectrumPlot extends Panel {
 
@@ -140,11 +136,12 @@ public class SpectrumPlot extends Panel {
 		// chart = new InvientCharts(chartConfig);
 	}
 
-	public void generatePlot(Spectrum s, boolean full_res) {
+	public void generatePlot(SensorAndInstrumentSpace space, ArrayList<String> filenames, boolean full_res) {
 		
 		fullres = full_res;
 
-		if (s.measurement_unit_id == 1) {
+
+		if (space.getMeasurementUnit().getUnitId() == 1) {
 			InvientChartsConfig chartConfig = new InvientChartsConfig();
 			chartConfig.getGeneralChartConfig().setType(SeriesType.LINE);
 			chartConfig.getGeneralChartConfig().setZoomType(ZoomType.XY);
@@ -234,7 +231,7 @@ public class SpectrumPlot extends Panel {
 			chartConfig.setXAxes(xAxesSet);
 
 			NumberYAxis reflectanceAxis = new NumberYAxis();
-			reflectanceAxis.setTitle(new AxisTitle("Radiance"));
+			reflectanceAxis.setTitle(new AxisTitle(space.getMeasurementUnit().getUnitName()));
 			NumberPlotLine plotLine = new NumberPlotLine("Test");
 			plotLine.setValue(new NumberValue(0.0));
 			plotLine.setWidth(1);
@@ -277,16 +274,24 @@ public class SpectrumPlot extends Panel {
 			chart = new InvientCharts(chartConfig);
 
 		}
+		
+		for(int i=0;i<space.getNumberOfDataPoints();i++)
+		{
+			XYSeries seriesData = getSeries(space, space.getSpectrumIds().get(i), filenames.get(i), i, full_res);
 
-		XYSeries seriesData = getSeries(s, s.file_name, full_res);
+			chart.addSeries(seriesData);			
+			
+			
+		}
+		
 
-		chart.addSeries(seriesData);
+
 
 	}
 
 	public void addPlot(Spectrum s, boolean full_res) {
-		XYSeries seriesData = getSeries(s, s.file_name, full_res);
-		chart.addSeries(seriesData);
+//		XYSeries seriesData = getSeries(s, s.file_name, full_res);
+//		chart.addSeries(seriesData);
 
 	}
 
@@ -299,31 +304,16 @@ public class SpectrumPlot extends Panel {
 		return points;
 	}
 
-	public XYSeries getSeries(Spectrum s, MetaDatatype<String> filename,
+	public XYSeries getSeries(SensorAndInstrumentSpace space, int spectrum_id, String filename, int index,
 			boolean full_res) {
 
-		XYSeries seriesData = new XYSeries(filename.toString());
+		XYSeries seriesData = new XYSeries(filename);
 
-		SpaceFactory sf = SpaceFactory.getInstance();
 
-		ArrayList<Space> spaces = null;
-		ArrayList<Integer> ids = new ArrayList<Integer>();
-		ids.add(s.spectrum_id);
-		spaces = sf.create_spaces(ids);
 
-		ListIterator<Space> spaces_li = spaces.listIterator();
+		data = space.getVector(spectrum_id);
 
-		spaces.Space space = spaces_li.next();
-
-		space.load_data();
-
-		double[][] vectors = space.get_array();
-
-		data = vectors[0];
-
-		SensorAndInstrumentSpace instr_space = (SensorAndInstrumentSpace) space;
-
-		wvl = instr_space.get_wvls();
+		wvl = space.getAverageWavelengths();
 		
 		LinkedHashSet<DecimalPoint> points = null;
 

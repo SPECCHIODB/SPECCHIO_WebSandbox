@@ -1,6 +1,6 @@
 package com.example.specchiowebsandbox.ui;
 
-import specchio.Spectrum;
+import ch.specchio.types.Spectrum;
 
 import com.example.specchiowebsandbox.data.SpectrumMetadata;
 import com.vaadin.terminal.Sizeable;
@@ -43,28 +43,36 @@ public class PositionPanel extends VerticalLayout{
 	
 		
 		TextField latitude = new TextField("Latitude:");
-		latitude.setValue(meta.latitude);
+		if(spec.getMetadata().get_entry("Latitude")!=null){
+			latitude.setValue(spec.getMetadata().get_entry("Latitude").valueAsString());
+		}
 		latitude.setWidth("100%");
 //		file_name_field.setReadOnly(true);
 		grid.addComponent(latitude);
 		grid.setComponentAlignment(latitude, Alignment.MIDDLE_LEFT);
 		
 		TextField longitude = new TextField("Longitude:");
-		longitude.setValue(meta.longitude);
+		if(spec.getMetadata().get_entry("Longitude")!=null){
+			longitude.setValue(spec.getMetadata().get_entry("Longitude").valueAsString());
+		}
 		longitude.setWidth("100%");
 //		file_name_field.setReadOnly(true);
 		grid.addComponent(longitude);
 		grid.setComponentAlignment(longitude, Alignment.MIDDLE_LEFT);
 		
 		TextField altitude = new TextField("Altitude:");
-		altitude.setValue(meta.altitude);
+		if(spec.getMetadata().get_entry("Altitude") != null){
+			altitude.setValue(spec.getMetadata().get_entry("Altitude").valueAsString());
+		}
 		altitude.setWidth("100%");
 //		file_name_field.setReadOnly(true);
 		grid.addComponent(altitude);
 		grid.setComponentAlignment(altitude, Alignment.MIDDLE_LEFT);
 		
 		TextField location = new TextField("Location:");
-		location.setValue(meta.location);
+		if(spec.getMetadata().get_entry("Location") != null){
+			location.setValue(spec.getMetadata().get_entry("Location").valueAsString());
+		}
 		location.setWidth("100%");
 //		file_name_field.setReadOnly(true);
 		grid.addComponent(location);

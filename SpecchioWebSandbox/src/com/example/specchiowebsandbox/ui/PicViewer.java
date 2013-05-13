@@ -1,7 +1,9 @@
 package com.example.specchiowebsandbox.ui;
 
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Blob;
 import java.sql.Connection;
@@ -10,9 +12,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-import specchio.SPECCHIODatabaseConnection;
-import specchio.Spectrum;
-import specchio.SpectrumQueryBank;
+import javax.imageio.ImageIO;
+
+
+import ch.specchio.types.SerialisableBufferedImage;
+import ch.specchio.types.Spectrum;
 
 import com.example.specchiowebsandbox.SpecchiowebsandboxApplication;
 import com.vaadin.terminal.StreamResource;
@@ -28,7 +32,6 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Accordion;
 import com.vaadin.ui.Button;
 
-import eav_db.DatabaseConnection;
 
 public class PicViewer extends VerticalLayout implements
 		Accordion.SelectedTabChangeListener, Button.ClickListener {
@@ -66,7 +69,7 @@ public class PicViewer extends VerticalLayout implements
 		grid.addStyleName("gridexample");
 
 		grid.setWidth("100%");
-		grid.setHeight("250px");
+		grid.setHeight("500px");
 		
 		
 //		eav_metadata = (Tab) a.addTab(eav,"EAV Metadata Table");
@@ -110,83 +113,109 @@ public class PicViewer extends VerticalLayout implements
 	
 	public Embedded getPictures(){
 		
-		Embedded image = null;
 		
+		
+		SerialisableBufferedImage buf_image = (SerialisableBufferedImage)spec.getMetadata().get_entry("Target Picture").getValue();
+		BufferedImage image = buf_image.getImage();
+		
+		final ByteArrayOutputStream imagebuffer = new ByteArrayOutputStream();
 		try {
-
-			DatabaseConnection db = SPECCHIODatabaseConnection.getInstance();
-			// conn = db.get_db_conn();
-			stmt = db.get_default_statement();
-			// SQL_StatementBuilder SQL = SQL_StatementBuilder.getInstance();
-			//
-			// String table_PK_name = SQL.get_primary_key_name("picture");
-
-			SpectrumQueryBank qb = SpectrumQueryBank.getInstance();
-
-			ArrayList<Integer> ids = new ArrayList<Integer>();
-			ids.add(spec.spectrum_id);
-
-			// String query = qb.get_picture_id_query(ids);
-
-			// String query =
-			// "select p.picture_id, p.image_data from picture p where p.picture_id in (select picture_id from spectrum_x_picture where spectrum_id="+spec.spectrum_id;
-			String query = "select p.picture_id, p.caption, p.image_data from picture p inner join spectrum_x_picture sxp on p.picture_id=sxp.picture_id where sxp.spectrum_id="
-					+ spec.spectrum_id;
-
-			ResultSet rs = stmt.executeQuery(query);
-
-			ArrayList<Integer> picture_ids;
-
-//			Blob blob = null;
-			ArrayList<String> captions = new ArrayList<String>();
-			ArrayList<Blob> blobs = new ArrayList<Blob>();
-//			String caption = null;
-			picture_ids = new ArrayList<Integer>();
-
-			while (rs.next()) {
-				picture_ids.add(rs.getInt(1));
-				captions.add(rs.getString(2));
-				blobs.add(rs.getBlob(3));
-
-			}
-
-			rs.close();
-			// stmt.close();
-			// conn.close();
-			
+			ImageIO.write(image, "png", imagebuffer);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
-			
-
-			for(int i = 0; i < picture_ids.size(); i++){
-			if (blobs.get(i) != null) {
-				final byte[] img = blobs.get(i).getBytes(1, (int) blobs.get(i).length());
-
-				StreamResource.StreamSource imageSource = new StreamResource.StreamSource() {
-					public InputStream getStream() {
-						return new ByteArrayInputStream(img);
-					}
-				};
-				StreamResource imageResource = new StreamResource(imageSource,
-						captions.get(i) + ".png", app);
-				imageResource.setCacheTime(0);
-				image = new Embedded(captions.get(i), imageResource);
-				image.requestRepaint();
+		StreamResource.StreamSource imageSource = new StreamResource.StreamSource() {
+			public InputStream getStream() {
+				return new ByteArrayInputStream(imagebuffer.toByteArray());
+			}
+		};
+		
+		StreamResource imageResource = new StreamResource(imageSource,
+				"test" + ".png", app);
+		
+		
+		Embedded emb = new Embedded("test", imageResource);
+		emb.requestRepaint();
+		
+		return emb;
+		
+//		try {
+//
+//			DatabaseConnection db = SPECCHIODatabaseConnection.getInstance();
+//			// conn = db.get_db_conn();
+//			stmt = db.get_default_statement();
+//			// SQL_StatementBuilder SQL = SQL_StatementBuilder.getInstance();
+//			//
+//			// String table_PK_name = SQL.get_primary_key_name("picture");
+//
+//			SpectrumQueryBank qb = SpectrumQueryBank.getInstance();
+//
+//			ArrayList<Integer> ids = new ArrayList<Integer>();
+//			ids.add(spec.spectrum_id);
+//
+//			// String query = qb.get_picture_id_query(ids);
+//
+//			// String query =
+//			// "select p.picture_id, p.image_data from picture p where p.picture_id in (select picture_id from spectrum_x_picture where spectrum_id="+spec.spectrum_id;
+//			String query = "select p.picture_id, p.caption, p.image_data from picture p inner join spectrum_x_picture sxp on p.picture_id=sxp.picture_id where sxp.spectrum_id="
+//					+ spec.spectrum_id;
+//
+//			ResultSet rs = stmt.executeQuery(query);
+//
+//			ArrayList<Integer> picture_ids;
+//
+////			Blob blob = null;
+//			ArrayList<String> captions = new ArrayList<String>();
+//			ArrayList<Blob> blobs = new ArrayList<Blob>();
+////			String caption = null;
+//			picture_ids = new ArrayList<Integer>();
+//
+//			while (rs.next()) {
+//				picture_ids.add(rs.getInt(1));
+//				captions.add(rs.getString(2));
+//				blobs.add(rs.getBlob(3));
+//
+//			}
+//
+//			rs.close();
+//			// stmt.close();
+//			// conn.close();
+//			
+//		
+//			
+//
+//			for(int i = 0; i < picture_ids.size(); i++){
+//			if (blobs.get(i) != null) {
+//				final byte[] img = blobs.get(i).getBytes(1, (int) blobs.get(i).length());
+//
+//				StreamResource.StreamSource imageSource = new StreamResource.StreamSource() {
+//					public InputStream getStream() {
+//						return new ByteArrayInputStream(img);
+//					}
+//				};
+//				StreamResource imageResource = new StreamResource(imageSource,
+//						captions.get(i) + ".png", app);
+//				imageResource.setCacheTime(0);
+//				image = new Embedded(captions.get(i), imageResource);
+//				image.requestRepaint();
 				
 				
 
 //				
-			}
-			}
-			
-			
-
-
-
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return image;
+//			}
+//			}
+//			
+//			
+//
+//
+//
+//		} catch (SQLException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		return image;
 	}
 
 }

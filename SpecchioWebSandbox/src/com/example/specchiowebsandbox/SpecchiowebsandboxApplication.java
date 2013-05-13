@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 
@@ -17,13 +18,21 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
 
-import spaces.SensorAndInstrumentSpace;
-import spaces.Space;
-import specchio.MetaDatatype;
-import specchio.SPECCHIODatabaseConnection;
-import specchio.SpaceFactory;
-import specchio.Spectrum;
-import spectral_data_browser.spectral_node_object;
+import ch.specchio.spaces.SensorAndInstrumentSpace;
+import ch.specchio.spaces.Space;
+
+import ch.specchio.types.MetaDatatype;
+import ch.specchio.client.SPECCHIOClient;
+import ch.specchio.client.SPECCHIOClientException;
+import ch.specchio.client.SPECCHIOClientFactory;
+import ch.specchio.client.SPECCHIOServerDescriptor;
+//import specchio.SPECCHIODatabaseConnection;
+//import ch.specchio.factories.SpaceFactory;
+import ch.specchio.gui.SpectralDataBrowser.SpectralDataBrowserNode;
+import ch.specchio.types.ConflictTable;
+import ch.specchio.types.MetaParameter;
+import ch.specchio.types.Spectrum;
+import ch.specchio.types.spectral_node_object;
 
 import com.example.specchiowebsandbox.data.DBHelper;
 import com.example.specchiowebsandbox.data.EAV_Attribute;
@@ -65,7 +74,7 @@ import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 
-import eav_db.DatabaseConnection;
+//import eav_db.DatabaseConnection;
 
 public class SpecchiowebsandboxApplication extends Application implements
 		HttpServletRequestListener, ValueChangeListener, Button.ClickListener {
@@ -74,8 +83,8 @@ public class SpecchiowebsandboxApplication extends Application implements
 
 	// private DBHelper dbHelp = new DBHelper(this);
 
-//	NavigationTree navtree = new NavigationTree(this);
-//	NavigationTree navtree = null;
+	// NavigationTree navtree = new NavigationTree(this);
+	// NavigationTree navtree = null;
 
 	private HorizontalSplitPanel horizontalSplit = new HorizontalSplitPanel();
 
@@ -88,6 +97,8 @@ public class SpecchiowebsandboxApplication extends Application implements
 	private SpectrumMetadata metadata = null;
 
 	private Spectrum s = null;
+	
+	public ArrayList<Spectrum> spectra;
 
 	private SpectrumDataPanel spec_dat_panel = null;
 
@@ -114,8 +125,18 @@ public class SpecchiowebsandboxApplication extends Application implements
 	private TabLayout tabs = new TabLayout(this);
 
 	private PicViewer pic_viewer;
-	
+
 	private SideBar sidebar;
+
+	private SPECCHIOClientFactory cf;
+
+	public SPECCHIOClient specchio_client;
+
+	private ConflictTable conflicts;
+
+	public ArrayList<EAV_Attribute> eav_attributes;
+
+	private Space space;
 
 	@Override
 	public void init() {
@@ -132,9 +153,21 @@ public class SpecchiowebsandboxApplication extends Application implements
 		VerticalLayout layout = new VerticalLayout();
 		layout.setSizeFull();
 		
+		try {
+			cf = SPECCHIOClientFactory.getInstance();
+			List<SPECCHIOServerDescriptor> descriptor_list = cf.getAllServerDescriptors();
+			
+			SPECCHIOServerDescriptor descriptor = descriptor_list.get(2);
+			
+			specchio_client = cf.connect(descriptor);
+			
+		} catch (SPECCHIOClientException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		sidebar = new SideBar(this);
-//		navtree = new NavigationTree(this);
-		
+		// navtree = new NavigationTree(this);
 
 		// Component header = createHeaderBar();
 		layout.addComponent(createHeaderBar());
@@ -156,57 +189,60 @@ public class SpecchiowebsandboxApplication extends Application implements
 	private Component createHeaderBar() {
 
 		HorizontalLayout h = new HorizontalLayout();
-		
+
 		String local_path = "/usr/local/apache-tomcat-7.0.32/webapps/SpecchioWebSandbox/graphics/";
 		String remote_path = "/var/lib/tomcat6/webapps/SpecchioWebSandbox/graphics/";
 
 		h.setWidth("100%");
-		
+
 		Embedded specchio_icon = null;
 		Embedded rsl_icon = null;
-		
-//		getMainWindow().showNotification(System.getProperty("user.dir"));
-		if(System.getProperty("user.dir").equals("/var/lib/tomcat6")){
-			specchio_icon = new Embedded("",new FileResource(new File(remote_path + "SPECCHIO_Icon_Mid_Res_small.jpg"),this));
-			rsl_icon = new Embedded("", new FileResource(new File(remote_path + "RSL.gif"),this));
-			
-		}else{
-			specchio_icon = new Embedded("",new FileResource(new File(local_path + "SPECCHIO_Icon_Mid_Res_small.jpg"),this));
-			rsl_icon = new Embedded("", new FileResource(new File(local_path + "RSL.gif"),this));
+
+		// getMainWindow().showNotification(System.getProperty("user.dir"));
+		if (System.getProperty("user.dir").equals("/var/lib/tomcat6")) {
+			specchio_icon = new Embedded("", new FileResource(new File(
+					remote_path + "SPECCHIO_Icon_Mid_Res_small.jpg"), this));
+			rsl_icon = new Embedded("", new FileResource(new File(remote_path
+					+ "RSL.gif"), this));
+
+		} else {
+			specchio_icon = new Embedded("", new FileResource(new File(
+					local_path + "SPECCHIO_Icon_Mid_Res_small.jpg"), this));
+			rsl_icon = new Embedded("", new FileResource(new File(local_path
+					+ "RSL.gif"), this));
 		}
-			
-		
+
 		h.addComponent(specchio_icon);
 		h.setComponentAlignment(specchio_icon, Alignment.BOTTOM_LEFT);
-		
+
 		h.addComponent(rsl_icon);
 		h.setComponentAlignment(rsl_icon, Alignment.BOTTOM_RIGHT);
 
-//		Button logout = new Button("Logout");
-//
-//		logout.addListener(new ClickListener() {
-//			public void buttonClick(ClickEvent event) {
-//				DatabaseConnection db = SPECCHIODatabaseConnection
-//						.getInstance();
-//				// Connection db_conn =
-//				// db.get_new_thread_conn_to_current_server(Thread.currentThread());
-//
-//				// db.close_thread_conn_to_current_server(Thread.currentThread());
-//
-//				// try {
-//				// db_conn.close();
-//				// } catch (SQLException e) {
-//				// // TODO Auto-generated catch block
-//				// e.printStackTrace();
-//				// }
-//				getApp().close();
-//
-//				// showLogoutWindow();
-//			}
-//		});
-//
-//		h.addComponent(logout);
-//		h.setComponentAlignment(logout, Alignment.TOP_RIGHT);
+		// Button logout = new Button("Logout");
+		//
+		// logout.addListener(new ClickListener() {
+		// public void buttonClick(ClickEvent event) {
+		// DatabaseConnection db = SPECCHIODatabaseConnection
+		// .getInstance();
+		// // Connection db_conn =
+		// // db.get_new_thread_conn_to_current_server(Thread.currentThread());
+		//
+		// // db.close_thread_conn_to_current_server(Thread.currentThread());
+		//
+		// // try {
+		// // db_conn.close();
+		// // } catch (SQLException e) {
+		// // // TODO Auto-generated catch block
+		// // e.printStackTrace();
+		// // }
+		// getApp().close();
+		//
+		// // showLogoutWindow();
+		// }
+		// });
+		//
+		// h.addComponent(logout);
+		// h.setComponentAlignment(logout, Alignment.TOP_RIGHT);
 
 		return h;
 	}
@@ -359,125 +395,129 @@ public class SpecchiowebsandboxApplication extends Application implements
 	}
 
 	public void valueChange(ValueChangeEvent event) {
-		
+
 		generateContent(false);
-//		System.out.println("WTF");
-//
-//		Object[] selected_items = ((Set<Object>) navtree.getValue()).toArray();
-//
-//		for (int i = 0; i < selected_items.length; i++) {
-//			spectral_node_object itemId = (spectral_node_object) selected_items[i];
-//
-//			if (itemId != null) {
-//				try {
-//					//
-//
-//					// System.setProperty("user.dir","/var/lib/tomcat6/webapps/SpecchioWebSandbox/WEB-INF/lib/");
-//					// System.out.println(System.getProperty("user.dir"));
-//					// getMainWindow().showNotification(System.getProperty("user.dir"));
-//					//
-//					// //Test to copy one file to another directory
-//					// if(!new File("/var/lib/tomcat6/db_config.txt").exists()){
-//					// try {
-//					// FileUtils.copyFileToDirectory(new
-//					// File("/var/lib/tomcat6/webapps/SpecchioWebSandbox/WEB-INF/lib/db_config.txt"),
-//					// new File("/var/lib/tomcat6"));
-//					// } catch (IOException e) {
-//					// // TODO Auto-generated catch block
-//					// getMainWindow().showNotification(e.toString());
-//					// e.printStackTrace();
-//					// }
-//					// }
-//
-//					String test = System.getProperty("user.dir");
-//
-//					s = new Spectrum(itemId.get_spectrum_ids().get(0));
-//
-//					// System.setProperty("user.dir","/var/lib/tomcat6");
-//				} catch (SQLException e) {
-//					// TODO Auto-generated catch block
-//					getMainWindow().showNotification(e.toString());
-//					e.printStackTrace();
-//				}
-//
-//				// EAV_DataAccess eav_access = null;
-//				// try {
-//				// eav_access = new EAV_DataAccess();
-//				// } catch (InstantiationException e) {
-//				// // TODO Auto-generated catch block
-//				// e.printStackTrace();
-//				// } catch (IllegalAccessException e) {
-//				// // TODO Auto-generated catch block
-//				// e.printStackTrace();
-//				// }
-//				// ArrayList<EAV_Attribute> entries =
-//				// eav_access.createEAVDataContainer(s.spectrum_id);
-//
-//				eav_data = new EAVDataPanel(s.spectrum_id);
-//
-//				if (specPlot == null) {
-//					specPlot = new SpectrumPlot();
-//					specPlot.generatePlot(s, false);
-//				} else {
-//					specPlot.addPlot(s, false);
-//				}
-//
-//				metadata = new SpectrumMetadata(s);
-//				metadata.fillMetadata();
-//				spec_dat_panel = new SpectrumDataPanel(this, s,
-//						specPlot.getChart(), metadata, false);
-//				position_panel = new PositionPanel(s, metadata);
-//				general_data_panel = new GeneralDataPanel(s, metadata);
-//				sampling_geom_panel = new SamplingGeometryPanel(s, metadata);
-//				map_panel = new GoogleMapsPanel(this, s, metadata);
-//				pic_panel = new PicturePanel(this, s, metadata);
-//
-//				map = new TwoComponentView(position_panel, map_panel);
-//				info_view = new TwoComponentView(general_data_panel,
-//						sampling_geom_panel);
-//				info_view.setHeight(200, 0);
-//			}
-//		}
-//
-//		// First remove all components from the tabs
-//		TabSheet tab = (TabSheet) tabs.getComponent(0);
-//		Iterator<Component> itr = tab.getComponentIterator();
-//		while (itr.hasNext()) {
-//			VerticalLayout vert = (VerticalLayout) itr.next();
-//			vert.removeAllComponents();
-//		}
-//
-//		if (selected_items.length > 1) {
-//			time_line_panel = new TimeLinePanel(this, s,
-//					specPlot.get_wvl_vector());
-//
-//			data_expl_panel = new DataExplorationPanel(this, s, selected_items);
-//
-//			pic_viewer = new PicViewer(s, this);
-//
-//			tabs.fillContent(spec_dat_panel, "general");
-//			tabs.fillContent(map, "general");
-//			tabs.fillContent(info_view, "general");
-//			tabs.fillContent(eav_data, "metadata");
-//			tabs.fillContent(pic_viewer, "metadata");
-//			tabs.fillContent(time_line_panel, "explor");
-//			tabs.fillContent(data_expl_panel, "explor");
-//			// horizontalSplit.setSecondComponent(new ListView(spec_dat_panel,
-//			// map, info_view, time_line_panel, data_expl_panel));
-//
-//		} else {
-//
-//			tabs.fillContent(spec_dat_panel, "general");
-//			tabs.fillContent(map, "general");
-//			tabs.fillContent(info_view, "general");
-//			tabs.fillContent(eav_data, "metadata");
-//
-//			pic_viewer = new PicViewer(s, this);
-//			tabs.fillContent(pic_viewer, "metadata");
-//
-//		}
-//
-//		specPlot = null;
+		// System.out.println("WTF");
+		//
+		// Object[] selected_items = ((Set<Object>)
+		// navtree.getValue()).toArray();
+		//
+		// for (int i = 0; i < selected_items.length; i++) {
+		// spectral_node_object itemId = (spectral_node_object)
+		// selected_items[i];
+		//
+		// if (itemId != null) {
+		// try {
+		// //
+		//
+		// //
+		// System.setProperty("user.dir","/var/lib/tomcat6/webapps/SpecchioWebSandbox/WEB-INF/lib/");
+		// // System.out.println(System.getProperty("user.dir"));
+		// // getMainWindow().showNotification(System.getProperty("user.dir"));
+		// //
+		// // //Test to copy one file to another directory
+		// // if(!new File("/var/lib/tomcat6/db_config.txt").exists()){
+		// // try {
+		// // FileUtils.copyFileToDirectory(new
+		// //
+		// File("/var/lib/tomcat6/webapps/SpecchioWebSandbox/WEB-INF/lib/db_config.txt"),
+		// // new File("/var/lib/tomcat6"));
+		// // } catch (IOException e) {
+		// // // TODO Auto-generated catch block
+		// // getMainWindow().showNotification(e.toString());
+		// // e.printStackTrace();
+		// // }
+		// // }
+		//
+		// String test = System.getProperty("user.dir");
+		//
+		// s = new Spectrum(itemId.get_spectrum_ids().get(0));
+		//
+		// // System.setProperty("user.dir","/var/lib/tomcat6");
+		// } catch (SQLException e) {
+		// // TODO Auto-generated catch block
+		// getMainWindow().showNotification(e.toString());
+		// e.printStackTrace();
+		// }
+		//
+		// // EAV_DataAccess eav_access = null;
+		// // try {
+		// // eav_access = new EAV_DataAccess();
+		// // } catch (InstantiationException e) {
+		// // // TODO Auto-generated catch block
+		// // e.printStackTrace();
+		// // } catch (IllegalAccessException e) {
+		// // // TODO Auto-generated catch block
+		// // e.printStackTrace();
+		// // }
+		// // ArrayList<EAV_Attribute> entries =
+		// // eav_access.createEAVDataContainer(s.spectrum_id);
+		//
+		// eav_data = new EAVDataPanel(s.spectrum_id);
+		//
+		// if (specPlot == null) {
+		// specPlot = new SpectrumPlot();
+		// specPlot.generatePlot(s, false);
+		// } else {
+		// specPlot.addPlot(s, false);
+		// }
+		//
+		// metadata = new SpectrumMetadata(s);
+		// metadata.fillMetadata();
+		// spec_dat_panel = new SpectrumDataPanel(this, s,
+		// specPlot.getChart(), metadata, false);
+		// position_panel = new PositionPanel(s, metadata);
+		// general_data_panel = new GeneralDataPanel(s, metadata);
+		// sampling_geom_panel = new SamplingGeometryPanel(s, metadata);
+		// map_panel = new GoogleMapsPanel(this, s, metadata);
+		// pic_panel = new PicturePanel(this, s, metadata);
+		//
+		// map = new TwoComponentView(position_panel, map_panel);
+		// info_view = new TwoComponentView(general_data_panel,
+		// sampling_geom_panel);
+		// info_view.setHeight(200, 0);
+		// }
+		// }
+		//
+		// // First remove all components from the tabs
+		// TabSheet tab = (TabSheet) tabs.getComponent(0);
+		// Iterator<Component> itr = tab.getComponentIterator();
+		// while (itr.hasNext()) {
+		// VerticalLayout vert = (VerticalLayout) itr.next();
+		// vert.removeAllComponents();
+		// }
+		//
+		// if (selected_items.length > 1) {
+		// time_line_panel = new TimeLinePanel(this, s,
+		// specPlot.get_wvl_vector());
+		//
+		// data_expl_panel = new DataExplorationPanel(this, s, selected_items);
+		//
+		// pic_viewer = new PicViewer(s, this);
+		//
+		// tabs.fillContent(spec_dat_panel, "general");
+		// tabs.fillContent(map, "general");
+		// tabs.fillContent(info_view, "general");
+		// tabs.fillContent(eav_data, "metadata");
+		// tabs.fillContent(pic_viewer, "metadata");
+		// tabs.fillContent(time_line_panel, "explor");
+		// tabs.fillContent(data_expl_panel, "explor");
+		// // horizontalSplit.setSecondComponent(new ListView(spec_dat_panel,
+		// // map, info_view, time_line_panel, data_expl_panel));
+		//
+		// } else {
+		//
+		// tabs.fillContent(spec_dat_panel, "general");
+		// tabs.fillContent(map, "general");
+		// tabs.fillContent(info_view, "general");
+		// tabs.fillContent(eav_data, "metadata");
+		//
+		// pic_viewer = new PicViewer(s, this);
+		// tabs.fillContent(pic_viewer, "metadata");
+		//
+		// }
+		//
+		// specPlot = null;
 
 	}
 
@@ -486,9 +526,9 @@ public class SpecchiowebsandboxApplication extends Application implements
 		NavigationTree navtree = sidebar.getNavTree();
 		Object[] selected_items = ((Set<Object>) navtree.getValue()).toArray();
 
-		TimeLinePlot timeline = new TimeLinePlot();
+		TimeLinePlot timeline = new TimeLinePlot(this);
 
-		timeline.generatePlot(parameter, band_no, selected_items);
+		timeline.generatePlot(space, parameter, band_no, selected_items);
 
 		return timeline.getChart();
 	}
@@ -497,7 +537,7 @@ public class SpecchiowebsandboxApplication extends Application implements
 		NavigationTree navtree = sidebar.getNavTree();
 		Object[] selected_items = ((Set<Object>) navtree.getValue()).toArray();
 
-		TimeLinePlot timeline = new TimeLinePlot();
+		TimeLinePlot timeline = new TimeLinePlot(this);
 		timeline.generatePlot(parameter, selected_items);
 
 		return timeline.getChart();
@@ -520,163 +560,201 @@ public class SpecchiowebsandboxApplication extends Application implements
 	// method to toggle between full res spectrum plot or scaled (just every
 	// 10th datapoint)
 	public void buttonClick(ClickEvent event) {
-		
-		if(event.getButton().getValue().equals(true)){
+
+		if (event.getButton().getValue().equals(true)) {
 			generateContent(true);
-		}else{
+		} else {
 			generateContent(false);
 		}
-//		System.out.println("WTF");
-//
-//		Object[] selected_items = ((Set<Object>) navtree.getValue()).toArray();
-//
-//		if (event.getButton().getValue().equals(true)) {
-//
-//			for (int i = 0; i < selected_items.length; i++) {
-//				spectral_node_object itemId = (spectral_node_object) selected_items[i];
-//
-//				if (itemId != null) {
-//					try {
-//						s = new Spectrum(itemId.get_spectrum_ids().get(0));
-//					} catch (SQLException e) {
-//						// TODO Auto-generated catch block
-//						e.printStackTrace();
-//					}
-//
-//					if (specPlot == null) {
-//						specPlot = new SpectrumPlot();
-//						specPlot.generatePlot(s, true);
-//					} else {
-//						specPlot.addPlot(s, true);
-//					}
-//
-//					// EAV_DataAccess eav_access = new EAV_DataAccess();
-//					// ArrayList<EAV_Attribute> entries =
-//					// eav_access.getEAVdata(s.spectrum_id);
-//
-//					metadata = new SpectrumMetadata(s);
-//					metadata.fillMetadata();
-//					if (selected_items.length == 1) {
-//
-//						eav_data = new EAVDataPanel(s.spectrum_id);
-//					}
-//					spec_dat_panel = new SpectrumDataPanel(this, s,
-//							specPlot.getChart(), metadata, true);
-//					position_panel = new PositionPanel(s, metadata);
-//					general_data_panel = new GeneralDataPanel(s, metadata);
-//					sampling_geom_panel = new SamplingGeometryPanel(s, metadata);
-//					map_panel = new GoogleMapsPanel(this, s, metadata);
-//					map = new TwoComponentView(position_panel, map_panel);
-//					info_view = new TwoComponentView(general_data_panel,
-//							sampling_geom_panel);
-//					pic_panel = new PicturePanel(this, s, metadata);
-//				}
-//			}
-//		} else {
-//
-//			for (int i = 0; i < selected_items.length; i++) {
-//				SpectrumData itemId = (SpectrumData) selected_items[i];
-//
-//				if (itemId != null) {
-//					try {
-//						s = new Spectrum(itemId.getSpectrum_id());
-//					} catch (SQLException e) {
-//						// TODO Auto-generated catch block
-//						e.printStackTrace();
-//					}
-//
-//					if (specPlot == null) {
-//						specPlot = new SpectrumPlot();
-//						specPlot.generatePlot(s, false);
-//					} else {
-//						specPlot.addPlot(s, false);
-//					}
-//
-//					// EAV_DataAccess eav_access = new EAV_DataAccess();
-//					// ArrayList<EAV_Attribute> entries =
-//					// eav_access.getEAVdata(s.spectrum_id);
-//
-//					metadata = new SpectrumMetadata(s);
-//					metadata.fillMetadata();
-//					if (selected_items.length == 1) {
-//
-//						eav_data = new EAVDataPanel(s.spectrum_id);
-//					}
-//					spec_dat_panel = new SpectrumDataPanel(this, s,
-//							specPlot.getChart(), metadata, false);
-//					position_panel = new PositionPanel(s, metadata);
-//					general_data_panel = new GeneralDataPanel(s, metadata);
-//					sampling_geom_panel = new SamplingGeometryPanel(s, metadata);
-//					map_panel = new GoogleMapsPanel(this, s, metadata);
-//					map = new TwoComponentView(position_panel, map_panel);
-//					info_view = new TwoComponentView(general_data_panel,
-//							sampling_geom_panel);
-//					pic_panel = new PicturePanel(this, s, metadata);
-//				}
-//			}
-//		}
-//
-//		if (selected_items.length > 1) {
-//			time_line_panel = new TimeLinePanel(this, s,
-//					specPlot.get_wvl_vector());
-//
-//			data_expl_panel = new DataExplorationPanel(this, s, selected_items);
-//
-//			horizontalSplit.setSecondComponent(new ListView(spec_dat_panel,
-//					map, info_view, time_line_panel, data_expl_panel));
-//		} else {
-//			horizontalSplit.setSecondComponent(new ListView(spec_dat_panel,
-//					map, info_view, eav_data, pic_panel));
-//		}
-//
-//		specPlot = null;
+		// System.out.println("WTF");
+		//
+		// Object[] selected_items = ((Set<Object>)
+		// navtree.getValue()).toArray();
+		//
+		// if (event.getButton().getValue().equals(true)) {
+		//
+		// for (int i = 0; i < selected_items.length; i++) {
+		// spectral_node_object itemId = (spectral_node_object)
+		// selected_items[i];
+		//
+		// if (itemId != null) {
+		// try {
+		// s = new Spectrum(itemId.get_spectrum_ids().get(0));
+		// } catch (SQLException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+		//
+		// if (specPlot == null) {
+		// specPlot = new SpectrumPlot();
+		// specPlot.generatePlot(s, true);
+		// } else {
+		// specPlot.addPlot(s, true);
+		// }
+		//
+		// // EAV_DataAccess eav_access = new EAV_DataAccess();
+		// // ArrayList<EAV_Attribute> entries =
+		// // eav_access.getEAVdata(s.spectrum_id);
+		//
+		// metadata = new SpectrumMetadata(s);
+		// metadata.fillMetadata();
+		// if (selected_items.length == 1) {
+		//
+		// eav_data = new EAVDataPanel(s.spectrum_id);
+		// }
+		// spec_dat_panel = new SpectrumDataPanel(this, s,
+		// specPlot.getChart(), metadata, true);
+		// position_panel = new PositionPanel(s, metadata);
+		// general_data_panel = new GeneralDataPanel(s, metadata);
+		// sampling_geom_panel = new SamplingGeometryPanel(s, metadata);
+		// map_panel = new GoogleMapsPanel(this, s, metadata);
+		// map = new TwoComponentView(position_panel, map_panel);
+		// info_view = new TwoComponentView(general_data_panel,
+		// sampling_geom_panel);
+		// pic_panel = new PicturePanel(this, s, metadata);
+		// }
+		// }
+		// } else {
+		//
+		// for (int i = 0; i < selected_items.length; i++) {
+		// SpectrumData itemId = (SpectrumData) selected_items[i];
+		//
+		// if (itemId != null) {
+		// try {
+		// s = new Spectrum(itemId.getSpectrum_id());
+		// } catch (SQLException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+		//
+		// if (specPlot == null) {
+		// specPlot = new SpectrumPlot();
+		// specPlot.generatePlot(s, false);
+		// } else {
+		// specPlot.addPlot(s, false);
+		// }
+		//
+		// // EAV_DataAccess eav_access = new EAV_DataAccess();
+		// // ArrayList<EAV_Attribute> entries =
+		// // eav_access.getEAVdata(s.spectrum_id);
+		//
+		// metadata = new SpectrumMetadata(s);
+		// metadata.fillMetadata();
+		// if (selected_items.length == 1) {
+		//
+		// eav_data = new EAVDataPanel(s.spectrum_id);
+		// }
+		// spec_dat_panel = new SpectrumDataPanel(this, s,
+		// specPlot.getChart(), metadata, false);
+		// position_panel = new PositionPanel(s, metadata);
+		// general_data_panel = new GeneralDataPanel(s, metadata);
+		// sampling_geom_panel = new SamplingGeometryPanel(s, metadata);
+		// map_panel = new GoogleMapsPanel(this, s, metadata);
+		// map = new TwoComponentView(position_panel, map_panel);
+		// info_view = new TwoComponentView(general_data_panel,
+		// sampling_geom_panel);
+		// pic_panel = new PicturePanel(this, s, metadata);
+		// }
+		// }
+		// }
+		//
+		// if (selected_items.length > 1) {
+		// time_line_panel = new TimeLinePanel(this, s,
+		// specPlot.get_wvl_vector());
+		//
+		// data_expl_panel = new DataExplorationPanel(this, s, selected_items);
+		//
+		// horizontalSplit.setSecondComponent(new ListView(spec_dat_panel,
+		// map, info_view, time_line_panel, data_expl_panel));
+		// } else {
+		// horizontalSplit.setSecondComponent(new ListView(spec_dat_panel,
+		// map, info_view, eav_data, pic_panel));
+		// }
+		//
+		// specPlot = null;
 
 	}
 
 	private void generateContent(boolean full_res) {
 
+		spectra = new ArrayList<Spectrum>();
 		NavigationTree navtree = sidebar.getNavTree();
+		space = null;
 		Object[] selected_items = ((Set<Object>) navtree.getValue()).toArray();
+		
+		ArrayList<Integer> ids = new ArrayList<Integer>();
+		ArrayList<String> filenames = new ArrayList<String>();
+		
+		for(Object obj : selected_items)
+		{
+			SpectralDataBrowserNode node = (SpectralDataBrowserNode) obj;
+			ids.add(node.getNodeId());	
+			filenames.add(node.toString());
+		}
+		
+		
+		try {
+			Space[] spaces = this.specchio_client.getSpaces(ids, true, false, "Acquisition Time");
+			space = spaces[0];
+			space = specchio_client.loadSpace(space);
+			
+			
+		} catch (SPECCHIOClientException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 
-		for (int i = 0; i < selected_items.length; i++) {
-			spectral_node_object itemId = (spectral_node_object) selected_items[i];
+//		for (int i = 0; i < selected_items.length; i++) {
+//			SpectralDataBrowserNode itemId = (SpectralDataBrowserNode) selected_items[i];
+//
+//			if (itemId != null) {
+//
 
-			if (itemId != null) {
-				try {
-
-					s = new Spectrum(itemId.get_spectrum_ids().get(0));
-
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					getMainWindow().showNotification(e.toString());
-					e.printStackTrace();
+			try {
+		
+				for(Integer id :ids){
+					spectra.add(this.specchio_client.getSpectrum(id, true));
 				}
+				
+				s = spectra.get(0);
+				
+				eav_attributes = getEAVAttributes(s);
+				
+				conflicts = specchio_client.getEavMetadataConflicts(ids);
+			} catch (SPECCHIOClientException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
-				eav_data = new EAVDataPanel(s.spectrum_id);
 
-				if (specPlot == null) {
+			eav_data = new EAVDataPanel(s, conflicts, this);			
+
+
+
+
+
 					specPlot = new SpectrumPlot();
-					specPlot.generatePlot(s, full_res);
-				} else {
-					specPlot.addPlot(s, false);
-				}
+					specPlot.generatePlot((SensorAndInstrumentSpace) space, filenames, full_res);
+//				} else {
+//					specPlot.addPlot(s, false);
+//				}
 
 				metadata = new SpectrumMetadata(s);
 				metadata.fillMetadata();
 				spec_dat_panel = new SpectrumDataPanel(this, s,
-						specPlot.getChart(), metadata, full_res);
+						specPlot.getChart(),full_res);
 				position_panel = new PositionPanel(s, metadata);
-				general_data_panel = new GeneralDataPanel(s, metadata);
+				general_data_panel = new GeneralDataPanel((SensorAndInstrumentSpace)space,s, metadata);
 				sampling_geom_panel = new SamplingGeometryPanel(s, metadata);
 				map_panel = new GoogleMapsPanel(this, s, metadata);
-				pic_panel = new PicturePanel(this, s, metadata);
-
+//				pic_panel = new PicturePanel(this, s, metadata);
+//
 				map = new TwoComponentView(position_panel, map_panel);
 				info_view = new TwoComponentView(general_data_panel,
 						sampling_geom_panel);
 				info_view.setHeight(200, 0);
-			}
-		}
+//			}
+//		}
 
 		// First remove all components from the tabs
 		TabSheet tab = (TabSheet) tabs.getComponent(0);
@@ -690,7 +768,7 @@ public class SpecchiowebsandboxApplication extends Application implements
 			time_line_panel = new TimeLinePanel(this, s,
 					specPlot.get_wvl_vector());
 
-			data_expl_panel = new DataExplorationPanel(this, s, selected_items);
+			data_expl_panel = new DataExplorationPanel(this, (SensorAndInstrumentSpace)space,s, selected_items);
 
 			pic_viewer = new PicViewer(s, this);
 
@@ -719,11 +797,30 @@ public class SpecchiowebsandboxApplication extends Application implements
 
 	}
 
+	private ArrayList<EAV_Attribute> getEAVAttributes(Spectrum s2) {
+		
+		ArrayList<EAV_Attribute> attributes = new ArrayList<EAV_Attribute>();
+		
+		for(MetaParameter mp : s.getMetadata().getEntries())
+		{
+			
+			
+			EAV_Attribute attribute = new EAV_Attribute();
+			attribute.setAttrName(mp.getAttributeName());
+			attribute.setAttrValue(mp.getValue());
+			attribute.setAttrField(mp.getDefaultStorageField());
+			
+			attributes.add(attribute);
+		}
+		
+		return attributes;
+	}
+
 	public SpecchiowebsandboxApplication getApp() {
 		return this;
 	}
-	
-	public void showNotification(String notification){
+
+	public void showNotification(String notification) {
 		this.getMainWindow().showNotification(notification);
 	}
 

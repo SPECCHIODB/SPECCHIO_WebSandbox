@@ -3,9 +3,10 @@ package com.example.specchiowebsandbox.ui;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
-import specchio.Spectrum;
+import ch.specchio.types.Spectrum;
 
 import com.example.specchiowebsandbox.SpecchiowebsandboxApplication;
+import com.example.specchiowebsandbox.data.EAV_Attribute;
 import com.invient.vaadin.charts.InvientCharts;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -20,9 +21,6 @@ import com.vaadin.ui.Slider;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
-import eav_db.Attributes;
-import eav_db.EAVDBServices;
-import eav_db.Attributes.attribute;
 
 public class TimeLinePanel extends VerticalLayout implements Property.ValueChangeListener{
 	
@@ -80,11 +78,15 @@ public class TimeLinePanel extends VerticalLayout implements Property.ValueChang
 		
 		//Create DropDown Menu to select parameter to be visualized
 		
-		getParametersList(s);
+//		getParametersList(s);
 		
 		NativeSelect dropdown = new NativeSelect("Please select parameter to be visualized");
-        for (int i = 0; i < parameters.size(); i++) {
-            dropdown.addItem(parameters.get(i));
+		
+		//add Reflectance
+		dropdown.addItem("Reflectance");
+		
+        for (EAV_Attribute attr : app.eav_attributes) {
+            dropdown.addItem(attr.getAttrName());
         }
 
         dropdown.setNullSelectionAllowed(false);
@@ -184,27 +186,27 @@ public class TimeLinePanel extends VerticalLayout implements Property.ValueChang
 	}
 	
 	public void getParametersList(Spectrum spec){
-		EAVDBServices eav_db_service = EAVDBServices.getInstance();
-		
-		ArrayList<Integer> spec_ids = new ArrayList<Integer>();
-		spec_ids.add(spec.spectrum_id);
-		
-		eav_db_service.set_primary_x_eav_tablename("spectrum_x_eav","spectrum_id", "spectrum");
-		
-		Attributes attributes = Attributes.getInstance();
-		ArrayList<attribute> attr = attributes.get_attributes("system");
-		
-		parameters = new ArrayList<String>();
-		
-		parameters.add("Reflectance");
-		
-		for(int i = 1; i< attr.size(); i++){
-			
-			if( attr.get(i-1).get_default_storage_field() != null){
-				parameters.add(attr.get(i-1).getName());
-			}
-		}
-		
+//		EAVDBServices eav_db_service = EAVDBServices.getInstance();
+//		
+//		ArrayList<Integer> spec_ids = new ArrayList<Integer>();
+//		spec_ids.add(spec.spectrum_id);
+//		
+//		eav_db_service.set_primary_x_eav_tablename("spectrum_x_eav","spectrum_id", "spectrum");
+//		
+//		Attributes attributes = Attributes.getInstance();
+//		ArrayList<attribute> attr = attributes.get_attributes("system");
+//		
+//		parameters = new ArrayList<String>();
+//		
+//		parameters.add("Reflectance");
+//		
+//		for(int i = 1; i< attr.size(); i++){
+//			
+//			if( attr.get(i-1).get_default_storage_field() != null){
+//				parameters.add(attr.get(i-1).getName());
+//			}
+//		}
+//		
 		
 	}
 	
