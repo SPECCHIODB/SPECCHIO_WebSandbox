@@ -26,7 +26,7 @@ public class SpectrumMetadata {
 	public String measurement_unit;
 	public String illum_source;
 	public String landcover;
-	public String beam_geometry;
+	public Long beam_geometry;
 	public String sampling_env;
 	
 	
@@ -73,7 +73,7 @@ public class SpectrumMetadata {
 			}else if(mp.getAttributeName().equalsIgnoreCase("Landcover") && mp.getValue() != null){
 				landcover = (String)mp.getValue();
 			}else if(mp.getAttributeName().equalsIgnoreCase("Beam Geometry") && mp.getValue() != null){
-				beam_geometry = (String)mp.getValue();
+				beam_geometry = (Long)mp.getValue();
 			}else if(mp.getAttributeName().equalsIgnoreCase("Sampling environment") && mp.getValue() != null){
 				sampling_env = (String)mp.getValue();
 			}			

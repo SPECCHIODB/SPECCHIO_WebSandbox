@@ -35,7 +35,7 @@ public class GoogleMapsPanel extends VerticalLayout{
 	
 	private Panel panel;
 	
-	public GoogleMapsPanel(SpecchiowebsandboxApplication app, Spectrum spec, SpectrumMetadata meta){
+	public GoogleMapsPanel(SpecchiowebsandboxApplication app, Spectrum spec){
 		
 		setSpacing(true);
 		
@@ -117,11 +117,14 @@ public class GoogleMapsPanel extends VerticalLayout{
 //		map.setHeight(240, UNITS_PIXELS);
 //		map.setWidth("100%");
 		
-		GoogleMap map = new GoogleMap(app, new Point2D.Double(-1*meta.longitude,meta.latitude), 2);
+		Double longitude = (Double)spec.getMetadata().get_entry("Longitude").getValue();
+		Double latitude = (Double)spec.getMetadata().get_entry("Latitude").getValue();
+		
+		GoogleMap map = new GoogleMap(app, new Point2D.Double(-1*longitude,latitude), 2);
 		map.setWidth("100%");
 		map.setHeight("250px");
 		
-		map.addMarker(new BasicMarker(1L,new Point2D.Double(-1*meta.longitude,meta.latitude),"Test Marker"));
+		map.addMarker(new BasicMarker(1L,new Point2D.Double(-1*longitude,latitude),"Test Marker"));
 		
 		grid.addComponent(map);
 		

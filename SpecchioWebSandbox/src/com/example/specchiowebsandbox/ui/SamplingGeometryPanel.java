@@ -1,5 +1,6 @@
 package com.example.specchiowebsandbox.ui;
 
+import ch.specchio.types.MetaParameter;
 import ch.specchio.types.Spectrum;
 
 import com.example.specchiowebsandbox.data.SpectrumMetadata;
@@ -15,7 +16,7 @@ public class SamplingGeometryPanel extends VerticalLayout{
 	
 	private Panel panel;
 	
-	public SamplingGeometryPanel(Spectrum spec, SpectrumMetadata meta){
+	public SamplingGeometryPanel(Spectrum spec){
 		
 		setSpacing(true);
 		
@@ -40,11 +41,11 @@ public class SamplingGeometryPanel extends VerticalLayout{
 //		addComponent(panel);
 	
 		
-		createTextfield(grid, "Sensor zenith:", meta.sensor_zenith);
-		createTextfield(grid, "Illumination zenith:", meta.illumination_zenith);
-		createTextfield(grid, "Sensor azimuth:", meta.sensor_azimuth);
-		createTextfield(grid, "Illumination azimuth:", meta.illumination_azimuth);
-		createTextfield(grid, "Sensor distance:", meta.sensor_distance);
+		createTextfield(grid, "Sensor zenith:", spec.getMetadata().get_entry("Sensor Zenith"));
+		createTextfield(grid, "Illumination zenith:", spec.getMetadata().get_entry("Illumination Zenith"));
+		createTextfield(grid, "Sensor azimuth:", spec.getMetadata().get_entry("Sensor Zenith"));
+		createTextfield(grid, "Illumination azimuth:", spec.getMetadata().get_entry("Illumination Azimuth"));
+		createTextfield(grid, "Sensor distance:", spec.getMetadata().get_entry("Sensor Distance"));
 		
 		
 		
@@ -54,10 +55,12 @@ public class SamplingGeometryPanel extends VerticalLayout{
 		
 	}
 	
-	private void createTextfield(GridLayout grid, String title, Object value){
+	private void createTextfield(GridLayout grid, String title, MetaParameter meta){
 		
 		TextField text_field = new TextField(title);
-		text_field.setValue(value);
+		if(meta != null){
+			text_field.setValue((Double)meta.getValue());
+		}
 		text_field.setWidth("100%");
 		grid.addComponent(text_field);
 		grid.setComponentAlignment(text_field, Alignment.MIDDLE_LEFT);

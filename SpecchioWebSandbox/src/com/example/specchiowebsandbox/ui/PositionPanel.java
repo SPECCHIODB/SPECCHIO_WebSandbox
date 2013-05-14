@@ -14,7 +14,7 @@ public class PositionPanel extends VerticalLayout{
 	
 	private Panel panel;
 	
-	public PositionPanel(Spectrum spec, SpectrumMetadata meta){
+	public PositionPanel(Spectrum spec){
 		
 		setSpacing(true);
 		
