@@ -125,7 +125,7 @@ public class PicturePanel extends VerticalLayout implements ClickListener { // i
 			e.printStackTrace();
 		}
 		
-		StreamResource.StreamSource imageSource = new StreamResource.StreamSource() {
+		StreamResource.StreamSource imageSource = new StreamResource.StreamSource() {  
 			public InputStream getStream() {
 				return new ByteArrayInputStream(imagebuffer.toByteArray());
 			}

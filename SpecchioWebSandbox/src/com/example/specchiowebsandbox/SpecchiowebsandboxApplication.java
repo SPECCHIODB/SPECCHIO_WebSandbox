@@ -143,6 +143,7 @@ public class SpecchiowebsandboxApplication extends Application implements
 	public void init() {
 		// SpecchiowebsandboxWin win = new SpecchiowebsandboxWin(this);
 		// setMainWindow(win);
+		System.out.println(System.getProperty("user.dir"));
 		buildMainLayout();
 		// setMainComponent(getListView());
 	}
@@ -159,7 +160,7 @@ public class SpecchiowebsandboxApplication extends Application implements
 			List<SPECCHIOServerDescriptor> descriptor_list = cf
 					.getAllServerDescriptors();
 
-			SPECCHIOServerDescriptor descriptor = descriptor_list.get(2);
+			SPECCHIOServerDescriptor descriptor = descriptor_list.get(1);
 
 			specchio_client = cf.connect(descriptor);
 
@@ -193,24 +194,26 @@ public class SpecchiowebsandboxApplication extends Application implements
 		HorizontalLayout h = new HorizontalLayout();
 
 		String local_path = "/usr/local/apache-tomcat-7.0.32/webapps/SpecchioWebSandbox/graphics/";
-		String remote_path = "/var/lib/tomcat6/webapps/SpecchioWebSandbox/graphics/";
+		String remote_path = "/opt/apache-tomcat-7.0.42/webapps/SpecchioWebSandbox/graphics/";
 
 		h.setWidth("100%");
 
 		Embedded specchio_icon = null;
 		Embedded rsl_icon = null;
+		
+		System.out.println(System.getProperty("user.dir"));
 
 		// getMainWindow().showNotification(System.getProperty("user.dir"));
-		if (System.getProperty("user.dir").equals("/var/lib/tomcat6")) {
+		if (System.getProperty("user.dir").equals("/Applications/eclipse_jee/Eclipse.app/Contents/MacOS")) {
 			specchio_icon = new Embedded("", new FileResource(new File(
-					remote_path + "SPECCHIO_Icon_Mid_Res_small.jpg"), this));
-			rsl_icon = new Embedded("", new FileResource(new File(remote_path
+					local_path + "SPECCHIO_Icon_Mid_Res_small.jpg"), this));
+			rsl_icon = new Embedded("", new FileResource(new File(local_path
 					+ "RSL.gif"), this));
 
 		} else {
 			specchio_icon = new Embedded("", new FileResource(new File(
-					local_path + "SPECCHIO_Icon_Mid_Res_small.jpg"), this));
-			rsl_icon = new Embedded("", new FileResource(new File(local_path
+					remote_path + "SPECCHIO_Icon_Mid_Res_small.jpg"), this));
+			rsl_icon = new Embedded("", new FileResource(new File(remote_path
 					+ "RSL.gif"), this));
 		}
 
